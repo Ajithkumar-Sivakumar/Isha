@@ -1,65 +1,126 @@
-name: Build and push Docker image to ECR
+name: Build and Push Docker Image to ECR
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
 
 permissions:
-  # OIDC token is required to assume an IAM role (no secrets stored in GitHub)
   id-token: write
   contents: read
 
 env:
-  # These should be configured in your repository or environment secrets
   AWS_REGION: ${{ secrets.AWS_REGION }}
   AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
   ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
 
 jobs:
-  build-and-push:
-    runs-on: ubuntu-latest
+  runner-test:
+    name: Verify Self-Hosted Runner
+    runs-on:
+      - self-hosted
+      - Linux
+      - X64
+      - aws
 
     steps:
-      - name: Checkout
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Configure AWS credentials from OIDC
-        uses: aws-actions/configure-aws-credentials@v2
+      - name: Display Runner Information
+        run: |
+          echo "========== Runner Information =========="
+          echo "Hostname: $(hostname)"
+          echo "User: $(whoami)"
+          echo "Current Directory: $(pwd)"
+          echo "Operating System:"
+          uname -a
+
+      - name: Check Installed Tools
+        run: |
+          echo "========== Installed Tools =========="
+          git --version
+          docker --version
+          aws --version
+          python3 --version || true
+
+      - name: Check Docker Status
+        run: |
+          echo "========== Docker =========="
+          docker ps
+
+      - name: Check Disk Usage
+        run: |
+          echo "========== Disk Usage =========="
+          df -h
+
+      - name: Check Memory
+        run: |
+          echo "========== Memory =========="
+          free -h
+
+      - name: Success Message
+        run: |
+          echo "✅ Self-hosted runner is working successfully!"
+
+  build-and-push:
+    name: Build and Push Docker Image
+    needs: runner-test
+
+    runs-on:
+      - self-hosted
+      - Linux
+      - X64
+      - aws
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          # This role must be created in AWS and trust GitHub's OIDC provider
           role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/GitHubActionsOIDCRole
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Ensure ECR repository exists
+      - name: Verify AWS Identity
         run: |
-          aws ecr describe-repositories --repository-names "$ECR_REPOSITORY" || aws ecr create-repository --repository-name "$ECR_REPOSITORY"
+          aws sts get-caller-identity
+
+      - name: Ensure ECR Repository Exists
+        run: |
+          aws ecr describe-repositories --repository-names "$ECR_REPOSITORY" \
+          || aws ecr create-repository --repository-name "$ECR_REPOSITORY"
 
       - name: Login to Amazon ECR
-        env:
-          AWS_REGION: ${{ env.AWS_REGION }}
-          AWS_ACCOUNT_ID: ${{ env.AWS_ACCOUNT_ID }}
         run: |
-          aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
+          aws ecr get-login-password --region $AWS_REGION \
+          | docker login \
+          --username AWS \
+          --password-stdin \
+          ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
 
-      - name: Build and tag Docker image
-        env:
-          AWS_REGION: ${{ env.AWS_REGION }}
-          AWS_ACCOUNT_ID: ${{ env.AWS_ACCOUNT_ID }}
-          ECR_REPOSITORY: ${{ env.ECR_REPOSITORY }}
+      - name: Build Docker Image
         run: |
           IMAGE_URI=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY}
           IMAGE_SHA=${GITHUB_SHA::8}
-          docker build -t ${IMAGE_URI}:latest -t ${IMAGE_URI}:${IMAGE_SHA} .
-          echo "IMAGE_URI=${IMAGE_URI}" >> $GITHUB_OUTPUT
-          echo "IMAGE_SHA=${IMAGE_SHA}" >> $GITHUB_OUTPUT
 
-      - name: Push Docker images to ECR
-        env:
-          AWS_REGION: ${{ env.AWS_REGION }}
-          AWS_ACCOUNT_ID: ${{ env.AWS_ACCOUNT_ID }}
-          ECR_REPOSITORY: ${{ env.ECR_REPOSITORY }}
+          docker build \
+            -t ${IMAGE_URI}:latest \
+            -t ${IMAGE_URI}:${IMAGE_SHA} .
+
+      - name: List Docker Images
+        run: |
+          docker images
+
+      - name: Push Docker Images
         run: |
           IMAGE_URI=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY}
           IMAGE_SHA=${GITHUB_SHA::8}
+
           docker push ${IMAGE_URI}:latest
           docker push ${IMAGE_URI}:${IMAGE_SHA}
+
+      - name: Success
+        run: |
+          echo "🎉 Docker image successfully pushed to Amazon ECR!"
