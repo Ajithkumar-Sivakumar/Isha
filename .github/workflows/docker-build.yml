@@ -125,7 +125,7 @@ jobs:
         run: |
           echo "🎉 Docker image successfully pushed to Amazon ECR!"
 
- deploy-k3s:
+  deploy-k3s:
     name: Deploy to K3s on EC2
     needs: build-and-push
     runs-on:
