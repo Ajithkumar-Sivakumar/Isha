@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sample-app-deployment
+  namespace: sample-app
+  labels:
+    app: sample-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: sample-app
+  template:
+    metadata:
+      labels:
+        app: sample-app
+    spec:
+      # If worker nodes have an IAM role that allows ECR pull, imagePullSecrets are NOT required.
+      # See README.md for explanation.
+      containers:
+        - name: sample-app
+          # Image points to Amazon ECR. Replace with your account/region/repository if needed.
+          image: 123456789012.dkr.ecr.us-west-2.amazonaws.com/sample-app:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          # Readiness probe ensures the pod is ready to receive traffic
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            failureThreshold: 3
+          # Liveness probe restarts unhealthy containers
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 20
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "256Mi"

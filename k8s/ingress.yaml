@@ -1,0 +1,21 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: sample-app-ingress
+  namespace: sample-app
+  annotations:
+    # Example annotation for nginx ingress controller. Modify if you use another controller.
+    kubernetes.io/ingress.class: "nginx"
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: sample-app-svc
+                port:
+                  number: 80
+
+# Ingress is optional. If you use an ALB controller, add appropriate annotations.
