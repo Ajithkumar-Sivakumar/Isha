@@ -72,4 +72,4 @@ Image pull / authentication explanation
 -------------------------------------
 - If your EKS worker nodes (or node IAM role) have permissions to pull from ECR (for example via an instance profile or IRSA with the right permissions), you do NOT need to create Kubernetes `imagePullSecrets`.
 - When worker nodes use an IAM role, the kubelet on the node can call ECR to get authorization tokens on behalf of pods, so storing Docker credentials as secrets in Kubernetes is unnecessary and less secure.
-- If you run self-managed nodes without proper IAM permissions, you must either configure `imagePullSecrets` with Docker credentials or give the node role ECR pull permissions.
+- If you run self-managed nodes without proper IAM permissions, you must either configure `imagePullSecrets` with Docker credentials or give the node role ECR pull permissions....

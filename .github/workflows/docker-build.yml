@@ -123,7 +123,7 @@ jobs:
 
       - name: Success
         run: |
-          echo "🎉 Docker image successfully pushed to Amazon ECR!"
+          echo "Docker image successfully pushed to Amazon ECR!"
 
   deploy-k3s:
     name: Deploy to K3s on EC2
