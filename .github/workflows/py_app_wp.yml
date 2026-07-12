@@ -183,10 +183,19 @@ jobs:
           aws ecr get-login-password --region "$AWS_REGION" \
             | docker login --username AWS --password-stdin "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
 
+      - name: Free disk space before build
+        run: |
+          docker system df || true
+          docker builder prune -af || true
+          docker image prune -af || true
+          sudo rm -rf /tmp/* || true
+          sudo rm -rf /var/lib/docker/overlay2/* || true
+          df -h /
+
       - name: Build Docker image
         run: |
           IMAGE_SHA=${GITHUB_SHA::8}
-          docker build -t "${IMAGE_URI}:latest" -t "${IMAGE_URI}:${IMAGE_SHA}" .
+          docker build --no-cache --pull=false -t "${IMAGE_URI}:latest" -t "${IMAGE_URI}:${IMAGE_SHA}" .
 
       - name: Smoke test container
         run: |

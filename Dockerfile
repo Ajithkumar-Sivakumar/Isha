@@ -16,9 +16,13 @@ RUN groupadd --gid 1000 appgroup && \
     useradd --uid 1000 --gid 1000 --create-home --home-dir /home/appuser appuser
 
 COPY requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt && \
+    rm -rf /root/.cache/pip
 
-COPY . /app
+COPY app.py ./
+COPY tests ./tests
+COPY pytest.ini ./
+COPY sonar-project.properties ./
 RUN chown -R appuser:appgroup /app
 
 USER appuser
