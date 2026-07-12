@@ -177,50 +177,20 @@ jobs:
             --cov-report=html \
             --cov-fail-under=70
 
-      - name: Upload coverage artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-report
-          path: |
-            coverage.xml
-            htmlcov/
-
-  coverage-report:
-    name: Coverage report
-    needs: unit-tests
-    runs-on:
-      - self-hosted
-      - Linux
-      - X64
-      - aws
-
-    steps:
-      - name: Prepare runner workspace
-        run: |
-          echo "Removing stale temporary files before checkout..."
-          sudo rm -rf /tmp/* 2>/dev/null || true
-          sudo find /tmp -mindepth 1 -maxdepth 1 -type d -name 'tmp.*' -exec rm -rf {} + 2>/dev/null || true
-          rm -rf .pytest_cache htmlcov coverage.xml .coverage .venv __pycache__ 2>/dev/null || true
-          find . -type d \( -name '__pycache__' -o -name '.pytest_cache' -o -name 'htmlcov' \) -prune -exec rm -rf {} + 2>/dev/null || true
-          df -h /
-
-      - name: Download coverage artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: coverage-report
-          path: coverage-artifacts
-
       - name: Show coverage summary
         run: |
-          echo "Coverage artifact contents:"
-          find coverage-artifacts -maxdepth 2 -type f | sort
+          cd "$REPO_DIR"
+          echo "Coverage files generated:"
+          find . -maxdepth 2 \( -name 'coverage.xml' -o -path './htmlcov/*' \) | sort
+          if [ -f coverage.xml ]; then
+            echo "coverage.xml present"
+          fi
 
   build-and-push:
     name: Build and push Docker image
     needs:
       - code-linting
       - unit-tests
-      - coverage-report
     runs-on:
       - self-hosted
       - Linux
