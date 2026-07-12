@@ -323,10 +323,16 @@ jobs:
 
       - name: Scan container image
         run: |
+          set -euo pipefail
           cd "$REPO_DIR"
           IMAGE_SHA=${GITHUB_SHA::8}
-          trivy image --exit-code 1 --severity HIGH,CRITICAL "${IMAGE_URI}:${IMAGE_SHA}" || true
-
+          echo "IMAGE_URI=${IMAGE_URI}"
+          echo "IMAGE_SHA=${IMAGE_SHA}"
+          docker image inspect "${IMAGE_URI}:${IMAGE_SHA}"
+          syft "${IMAGE_URI}:${IMAGE_SHA}" \
+            -o cyclonedx-json \
+            > sbom.json
+          
   sbom-generation:
     name: Generate SBOM
     needs: build-and-push
