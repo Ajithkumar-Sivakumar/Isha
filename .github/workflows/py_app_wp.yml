@@ -79,35 +79,46 @@ jobs:
         run: |
           pylint app.py
 
-  unit-tests:
-    name: Unit tests
-    needs: runner-test
-    runs-on:
-      - self-hosted
-      - Linux
-      - X64
-      - aws
+unit-tests:
+  name: Unit tests
+  needs: runner-test
+  runs-on:
+    - self-hosted
+    - Linux
+    - X64
+    - aws
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+  steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
 
-      - name: Install test tools
-        run: |
-          python3 -m pip install --break-system-packages -r requirements.txt
-          python3 -m pip install --break-system-packages pytest-cov
+    - name: Install test tools
+      run: |
+        python3 -m pip install --break-system-packages -r requirements.txt
+        python3 -m pip install --break-system-packages pytest pytest-cov
 
-      - name: Run unit tests with coverage
-        run: |
-          pytest -q --cov=app --cov-report=term-missing --cov-report=xml --cov-report=html --cov-fail-under=70
+    - name: Verify installation
+      run: |
+        python3 --version
+        python3 -m pip --version
+        python3 -m pytest --version
 
-      - name: Upload coverage artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-report
-          path: |
-            coverage.xml
-            htmlcov/
+    - name: Run unit tests with coverage
+      run: |
+        python3 -m pytest -q \
+          --cov=app \
+          --cov-report=term-missing \
+          --cov-report=xml \
+          --cov-report=html \
+          --cov-fail-under=70
+
+    - name: Upload coverage artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-report
+        path: |
+          coverage.xml
+          htmlcov/
 
   coverage-report:
     name: Coverage report
