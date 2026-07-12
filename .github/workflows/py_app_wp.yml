@@ -24,15 +24,12 @@ jobs:
       - Linux
       - X64
       - aws
-    defaults:
-      run:
-        working-directory: /home/ubuntu/_work/Isha/${{ github.run_id }}-${{ github.run_attempt }}
 
     steps:
       - name: Checkout repository
         run: |
           set -euo pipefail
-          REPO_DIR="/home/ubuntu/_work/Isha/${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          REPO_DIR="$GITHUB_WORKSPACE/repo"
           mkdir -p "$REPO_DIR"
           git config --global --add safe.directory "$REPO_DIR"
           find "$REPO_DIR" -mindepth 1 -maxdepth 1 -exec rm -rf {} + 2>/dev/null || true
@@ -76,9 +73,6 @@ jobs:
       - Linux
       - X64
       - aws
-    defaults:
-      run:
-        working-directory: /home/ubuntu/_work/Isha/${{ github.run_id }}-${{ github.run_attempt }}
 
     steps:
       - name: Prepare runner workspace
@@ -94,7 +88,7 @@ jobs:
       - name: Checkout repository
         run: |
           set -euo pipefail
-          REPO_DIR="/home/ubuntu/_work/Isha/${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          REPO_DIR="$GITHUB_WORKSPACE/repo"
           mkdir -p "$REPO_DIR"
           git config --global --add safe.directory "$REPO_DIR"
           find "$REPO_DIR" -mindepth 1 -maxdepth 1 -exec rm -rf {} + 2>/dev/null || true
@@ -125,9 +119,6 @@ jobs:
       - Linux
       - X64
       - aws
-    defaults:
-      run:
-        working-directory: /home/ubuntu/_work/Isha/${{ github.run_id }}-${{ github.run_attempt }}
 
     steps:
       - name: Prepare runner workspace
@@ -143,7 +134,7 @@ jobs:
       - name: Checkout repository
         run: |
           set -euo pipefail
-          REPO_DIR="/home/ubuntu/_work/Isha/${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          REPO_DIR="$GITHUB_WORKSPACE/repo"
           mkdir -p "$REPO_DIR"
           git config --global --add safe.directory "$REPO_DIR"
           find "$REPO_DIR" -mindepth 1 -maxdepth 1 -exec rm -rf {} + 2>/dev/null || true
@@ -194,9 +185,6 @@ jobs:
       - Linux
       - X64
       - aws
-    defaults:
-      run:
-        working-directory: /home/ubuntu/_work/Isha/${{ github.run_id }}-${{ github.run_attempt }}
 
     steps:
       - name: Prepare runner workspace
@@ -230,9 +218,6 @@ jobs:
       - Linux
       - X64
       - aws
-    defaults:
-      run:
-        working-directory: /home/ubuntu/_work/Isha/${{ github.run_id }}-${{ github.run_attempt }}
 
     steps:
       - name: Prepare runner workspace
@@ -248,7 +233,7 @@ jobs:
       - name: Checkout repository
         run: |
           set -euo pipefail
-          REPO_DIR="/home/ubuntu/_work/Isha/${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          REPO_DIR="$GITHUB_WORKSPACE/repo"
           mkdir -p "$REPO_DIR"
           git config --global --add safe.directory "$REPO_DIR"
           find "$REPO_DIR" -mindepth 1 -maxdepth 1 -exec rm -rf {} + 2>/dev/null || true
@@ -323,9 +308,6 @@ jobs:
       - Linux
       - X64
       - aws
-    defaults:
-      run:
-        working-directory: /home/ubuntu/_work/Isha/${{ github.run_id }}-${{ github.run_attempt }}
 
     steps:
       - name: Prepare runner workspace
@@ -340,7 +322,7 @@ jobs:
       - name: Checkout repository
         run: |
           set -euo pipefail
-          REPO_DIR="/home/ubuntu/_work/Isha/${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          REPO_DIR="$GITHUB_WORKSPACE/repo"
           mkdir -p "$REPO_DIR"
           git config --global --add safe.directory "$REPO_DIR"
           find "$REPO_DIR" -mindepth 1 -maxdepth 1 -exec rm -rf {} + 2>/dev/null || true
@@ -367,9 +349,6 @@ jobs:
       - Linux
       - X64
       - aws
-    defaults:
-      run:
-        working-directory: /home/ubuntu/_work/Isha/${{ github.run_id }}-${{ github.run_attempt }}
 
     steps:
       - name: Prepare runner workspace
@@ -384,7 +363,7 @@ jobs:
       - name: Checkout repository
         run: |
           set -euo pipefail
-          REPO_DIR="/home/ubuntu/_work/Isha/${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          REPO_DIR="$GITHUB_WORKSPACE/repo"
           mkdir -p "$REPO_DIR"
           git config --global --add safe.directory "$REPO_DIR"
           find "$REPO_DIR" -mindepth 1 -maxdepth 1 -exec rm -rf {} + 2>/dev/null || true
@@ -425,9 +404,6 @@ jobs:
       - Linux
       - X64
       - aws
-    defaults:
-      run:
-        working-directory: /home/ubuntu/_work/Isha/${{ github.run_id }}-${{ github.run_attempt }}
 
     steps:
       - name: Prepare runner workspace
@@ -442,7 +418,7 @@ jobs:
       - name: Checkout repository
         run: |
           set -euo pipefail
-          REPO_DIR="/home/ubuntu/_work/Isha/${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          REPO_DIR="$GITHUB_WORKSPACE/repo"
           mkdir -p "$REPO_DIR"
           git config --global --add safe.directory "$REPO_DIR"
           find "$REPO_DIR" -mindepth 1 -maxdepth 1 -exec rm -rf {} + 2>/dev/null || true
