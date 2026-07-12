@@ -359,10 +359,10 @@ jobs:
           git checkout -f FETCH_HEAD
           echo "REPO_DIR=$REPO_DIR" >> "$GITHUB_ENV"
 
-      - name: Verify Syft
-        run: |
-          cd "$REPO_DIR"
-          syft version
+      # - name: Verify Syft
+      #   run: |
+      #     cd "$REPO_DIR"
+      #     syft version
 
       - name: Install Syft
         run: |
