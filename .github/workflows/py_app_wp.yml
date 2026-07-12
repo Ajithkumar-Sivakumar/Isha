@@ -306,9 +306,17 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Verify Syft
+        run: syft version
+
       - name: Install Syft
         run: |
-          curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sudo sh
+          if ! command -v syft >/dev/null 2>&1; then
+            curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | \
+              sudo sh -s -- -b /usr/local/bin
+          fi
+
+          syft version
 
       - name: Generate SBOM
         run: |
