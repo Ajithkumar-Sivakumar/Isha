@@ -1,9 +1,10 @@
-name: Build and Push Docker Image to ECR
+name: PY App Workflow Pipeline
 
 on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 permissions:
   id-token: write
@@ -13,116 +14,247 @@ env:
   AWS_REGION: ${{ secrets.AWS_REGION }}
   AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
   ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+  IMAGE_URI: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}
 
 jobs:
   runner-test:
-    name: Verify Self-Hosted Runner
+    name: Verify self-hosted runner
     runs-on:
-      - Mohan-Runner
+      - self-hosted
+      - Linux
+      - X64
+      - aws
 
     steps:
-      - name: Checkout Repository
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Display Runner Information
+      - name: Display runner information
         run: |
           echo "========== Runner Information =========="
           echo "Hostname: $(hostname)"
           echo "User: $(whoami)"
           echo "Current Directory: $(pwd)"
-          echo "Operating System:"
           uname -a
 
-      - name: Check Installed Tools
+      - name: Check required tools
         run: |
-          echo "========== Installed Tools =========="
+          echo "========== Tooling =========="
           git --version
           docker --version
           aws --version
-          python3 --version || true
+          python3 --version
 
-      - name: Check Docker Status
+      - name: Install application dependencies
         run: |
-          echo "========== Docker =========="
-          docker ps
+          python3 -m pip install --upgrade pip
+          python3 -m pip install -r requirements.txt
 
-      - name: Check Disk Usage
+  code-linting:
+    name: Code linting
+    needs: runner-test
+    runs-on:
+      - self-hosted
+      - Linux
+      - X64
+      - aws
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install lint tools
         run: |
-          echo "========== Disk Usage =========="
-          df -h
+          python3 -m pip install --upgrade pip
+          python3 -m pip install -r requirements.txt pylint
 
-      - name: Check Memory
+      - name: Run pylint
         run: |
-          echo "========== Memory =========="
-          free -h
+          pylint app.py
 
-      - name: Success Message
+  unit-tests:
+    name: Unit tests
+    needs: runner-test
+    runs-on:
+      - self-hosted
+      - Linux
+      - X64
+      - aws
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install test tools
         run: |
-          echo "✅ Self-hosted runner is working successfully!"
+          python3 -m pip install --upgrade pip
+          python3 -m pip install -r requirements.txt pytest pytest-cov
 
-  # build-and-push:
-  #   name: Build and Push Docker Image
-  #   needs: runner-test
+      - name: Run unit tests with coverage
+        run: |
+          pytest -q --cov=app --cov-report=term-missing --cov-report=xml --cov-report=html --cov-fail-under=70
 
-  #   runs-on:
-  #     - self-hosted
-  #     - Linux
-  #     - X64
-  #     - aws
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: |
+            coverage.xml
+            htmlcov/
 
-  #   steps:
-  #     - name: Checkout Repository
-  #       uses: actions/checkout@v4
+  coverage-report:
+    name: Coverage report
+    needs: unit-tests
+    runs-on:
+      - self-hosted
+      - Linux
+      - X64
+      - aws
 
-  #     - name: Configure AWS Credentials
-  #       uses: aws-actions/configure-aws-credentials@v4
-  #       with:
-  #         role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/GitHubActionsOIDCRole
-  #         aws-region: ${{ env.AWS_REGION }}
+    steps:
+      - name: Download coverage artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage-artifacts
 
-  #     - name: Verify AWS Identity
-  #       run: |
-  #         aws sts get-caller-identity
+      - name: Show coverage summary
+        run: |
+          echo "Coverage artifact contents:"
+          find coverage-artifacts -maxdepth 2 -type f | sort
 
-  #     - name: Ensure ECR Repository Exists
-  #       run: |
-  #         aws ecr describe-repositories --repository-names "$ECR_REPOSITORY" \
-  #         || aws ecr create-repository --repository-name "$ECR_REPOSITORY"
+  build-and-push:
+    name: Build and push Docker image
+    needs:
+      - code-linting
+      - unit-tests
+      - coverage-report
+    runs-on:
+      - self-hosted
+      - Linux
+      - X64
+      - aws
 
-  #     - name: Login to Amazon ECR
-  #       run: |
-  #         aws ecr get-login-password --region $AWS_REGION \
-  #         | docker login \
-  #         --username AWS \
-  #         --password-stdin \
-  #         ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-  #     - name: Build Docker Image
-  #       run: |
-  #         IMAGE_URI=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY}
-  #         IMAGE_SHA=${GITHUB_SHA::8}
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/GitHubActionsOIDCRole
+          aws-region: ${{ env.AWS_REGION }}
 
-  #         docker build \
-  #           -t ${IMAGE_URI}:latest \
-  #           -t ${IMAGE_URI}:${IMAGE_SHA} .
+      - name: Verify AWS identity
+        run: |
+          aws sts get-caller-identity
 
-  #     - name: List Docker Images
-  #       run: |
-  #         docker images
+      - name: Ensure ECR repository exists
+        run: |
+          aws ecr describe-repositories --repository-names "$ECR_REPOSITORY" \
+            || aws ecr create-repository --repository-name "$ECR_REPOSITORY"
 
-  #     - name: Push Docker Images
-  #       run: |
-  #         IMAGE_URI=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY}
-  #         IMAGE_SHA=${GITHUB_SHA::8}
+      - name: Login to Amazon ECR
+        run: |
+          aws ecr get-login-password --region "$AWS_REGION" \
+            | docker login --username AWS --password-stdin "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
 
-  #         docker push ${IMAGE_URI}:latest
-  #         docker push ${IMAGE_URI}:${IMAGE_SHA}
+      - name: Build Docker image
+        run: |
+          IMAGE_SHA=${GITHUB_SHA::8}
+          docker build -t "${IMAGE_URI}:latest" -t "${IMAGE_URI}:${IMAGE_SHA}" .
 
-  #     - name: Success
-  #       run: |
-  #         echo "Docker image successfully pushed to Amazon ECR!"
+      - name: Smoke test container
+        run: |
+          IMAGE_SHA=${GITHUB_SHA::8}
+          docker run -d --name py-app-test -p 8080:8080 "${IMAGE_URI}:${IMAGE_SHA}"
+          for i in {1..20}; do
+            if curl -sf http://127.0.0.1:8080/health; then
+              break
+            fi
+            sleep 2
+          done
+          docker rm -f py-app-test
 
-  # deploy-k3s:
+      - name: Push Docker image
+        run: |
+          IMAGE_SHA=${GITHUB_SHA::8}
+          docker push "${IMAGE_URI}:latest"
+          docker push "${IMAGE_URI}:${IMAGE_SHA}"
+
+  trivy-scan:
+    name: Trivy image scan
+    needs: build-and-push
+    runs-on:
+      - self-hosted
+      - Linux
+      - X64
+      - aws
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Trivy
+        run: |
+          curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sudo sh
+
+      - name: Scan container image
+        run: |
+          IMAGE_SHA=${GITHUB_SHA::8}
+          trivy image --exit-code 1 --severity HIGH,CRITICAL "${IMAGE_URI}:${IMAGE_SHA}" || true
+
+  sbom-generation:
+    name: Generate SBOM
+    needs: build-and-push
+    runs-on:
+      - self-hosted
+      - Linux
+      - X64
+      - aws
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Syft
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sudo sh
+
+      - name: Generate SBOM
+        run: |
+          IMAGE_SHA=${GITHUB_SHA::8}
+          syft "${IMAGE_URI}:${IMAGE_SHA}" -o json > sbom.json
+
+      - name: Upload SBOM artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom-report
+          path: sbom.json
+
+  sign-docker-image:
+    name: Sign Docker image
+    needs: build-and-push
+    runs-on:
+      - self-hosted
+      - Linux
+      - X64
+      - aws
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Cosign
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/sigstore/cosign/main/install.sh | sudo sh
+
+      - name: Sign image
+        run: |
+          IMAGE_SHA=${GITHUB_SHA::8}
+          echo "Signing ${IMAGE_URI}:${IMAGE_SHA}"
+          cosign sign --yes --key cosign.key "${IMAGE_URI}:${IMAGE_SHA}" || true
+
   #   name: Deploy to K3s on EC2
   #   needs: build-and-push
   #   runs-on:

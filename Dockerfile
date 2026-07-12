@@ -1,36 +1,31 @@
 # Production-ready Dockerfile
-# - Small base (`python:3.11-slim`)
+# - Small base image
 # - Non-root user
 # - Exposes port 8080
-# - Uses `gunicorn` for production
+# - Uses gunicorn for production
 
-FROM python:3.11-slim
+FROM python:3.11-slim-bookworm
 
-# Install system dependencies required to build some Python packages if needed
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends build-essential && \
-    rm -rf /var/lib/apt/lists/*
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PORT=8080
 
 WORKDIR /app
 
-# Create a non-root user with a predictable uid/gid
 RUN groupadd --gid 1000 appgroup && \
     useradd --uid 1000 --gid 1000 --create-home --home-dir /home/appuser appuser
 
-# Copy requirements and install first (leverages Docker cache)
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy application code
 COPY . /app
-
-# Ensure files are owned by non-root user
 RUN chown -R appuser:appgroup /app
 
 USER appuser
 
-# Application listens on 8080 (HTTP)
 EXPOSE 8080
 
-# Run with gunicorn: small number of workers suitable for small app
-CMD ["gunicorn", "--bind", "0.0.0.0:8080", "app:app", "--workers", "2", "--threads", "2"]
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/health').read()" || exit 1
+
+CMD ["sh", "-c", "gunicorn --bind 0.0.0.0:${PORT:-8080} app:app --workers 2 --threads 2"]
