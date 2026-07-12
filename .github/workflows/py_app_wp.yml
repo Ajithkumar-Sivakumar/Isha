@@ -44,18 +44,18 @@ jobs:
           docker --version
           aws --version
           python3 --version
+          python3 -m pip --version
 
       - name: Install Python and pip
         run: |
-          sudo apt update
-          sudo apt install -y python3 python3-pip
+          python3 -m pip install --break-system-packages -r requirements.txt
       
-      - name: Install application dependencies
-        run: |
-          python3 -m venv venv
-          source venv/bin/activate
-          pip install --upgrade pip
-          pip install -r requirements.txt
+      # - name: Install application dependencies
+      #   run: |
+      #     python3 -m venv venv
+      #     source venv/bin/activate
+      #     pip install --upgrade pip
+      #     pip install -r requirements.txt
 
   code-linting:
     name: Code linting
