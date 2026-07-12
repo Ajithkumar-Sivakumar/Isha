@@ -72,8 +72,8 @@ jobs:
 
       - name: Install lint tools
         run: |
-          python3 -m pip install --upgrade pip
-          python3 -m pip install -r requirements.txt pylint
+          python3 -m pip install --break-system-packages -r requirements.txt
+          python3 -m pip install --break-system-packages pytest
 
       - name: Run pylint
         run: |
@@ -94,8 +94,8 @@ jobs:
 
       - name: Install test tools
         run: |
-          python3 -m pip install --upgrade pip
-          python3 -m pip install -r requirements.txt pytest pytest-cov
+          python3 -m pip install --break-system-packages -r requirements.txt
+          python3 -m pip install --break-system-packages pytest-cov
 
       - name: Run unit tests with coverage
         run: |
