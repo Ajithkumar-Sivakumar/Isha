@@ -45,6 +45,11 @@ jobs:
           aws --version
           python3 --version
 
+      - name: Install Python and pip
+        run: |
+          sudo apt update
+          sudo apt install -y python3 python3-pip
+      
       - name: Install application dependencies
         run: |
           python3 -m pip install --upgrade pip
