@@ -28,19 +28,22 @@ jobs:
 
     steps:
       - name: Checkout repository
-        run: |
-          set -euo pipefail
-          REPO_DIR="$GITHUB_WORKSPACE/repo"
-          sudo rm -rf "$REPO_DIR"
-          sudo mkdir -p "$REPO_DIR"
-          git config --global --add safe.directory "$REPO_DIR"
-          git clone --depth=1 "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "$REPO_DIR"
-          cd "$REPO_DIR"
-          git fetch --depth=1 origin "${GITHUB_SHA}"
-          git checkout -f FETCH_HEAD
-          echo "REPO_DIR=$REPO_DIR" >> "$GITHUB_ENV"
-          echo "PYTHONPATH=$REPO_DIR${PYTHONPATH:+:$PYTHONPATH}" >> "$GITHUB_ENV"
-          echo "Repository checked out to $REPO_DIR"
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+        # run: |
+        #   set -euo pipefail
+        #   REPO_DIR="$GITHUB_WORKSPACE/repo"
+        #   sudo rm -rf "$REPO_DIR"
+        #   sudo mkdir -p "$REPO_DIR"
+        #   git config --global --add safe.directory "$REPO_DIR"
+        #   git clone --depth=1 "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "$REPO_DIR"
+        #   cd "$REPO_DIR"
+        #   git fetch --depth=1 origin "${GITHUB_SHA}"
+        #   git checkout -f FETCH_HEAD
+        #   echo "REPO_DIR=$REPO_DIR" >> "$GITHUB_ENV"
+        #   echo "PYTHONPATH=$REPO_DIR${PYTHONPATH:+:$PYTHONPATH}" >> "$GITHUB_ENV"
+        #   echo "Repository checked out to $REPO_DIR"
 
       - name: Display runner information
         run: |
