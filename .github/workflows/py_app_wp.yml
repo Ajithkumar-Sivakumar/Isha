@@ -378,7 +378,11 @@ jobs:
         run: |
           cd "$REPO_DIR"
           IMAGE_SHA=${GITHUB_SHA::8}
-          syft "${IMAGE_URI}:${IMAGE_SHA}" -o json > sbom.json
+          IMAGE_SHA=${GITHUB_SHA::8}
+          export GOMEMLIMIT=700MiB
+          syft docker-daemon:${IMAGE_URI}:${IMAGE_SHA} \
+            -o cyclonedx-json \
+            > sbom.json
 
       - name: Upload SBOM artifact
         uses: actions/upload-artifact@v4
