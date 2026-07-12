@@ -63,8 +63,8 @@ jobs:
           python3 -m pip --version
 
       - name: Prepare Python environment
+        working-directory: ${{ github.workspace }}
         run: |
-          cd "$REPO_DIR"
           python3 -m venv .venv
           source .venv/bin/activate
           python -m pip install --upgrade pip
