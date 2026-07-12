@@ -235,7 +235,7 @@ jobs:
       - name: Build Docker image
         run: |
           IMAGE_SHA=${GITHUB_SHA::8}
-          docker build --progress=plain --no-cache --pull=false -t "${IMAGE_URI}:latest" -t "${IMAGE_URI}:${IMAGE_SHA}" .
+          docker build --no-cache --pull=false -t "${IMAGE_URI}:latest" -t "${IMAGE_URI}:${IMAGE_SHA}" .
 
       - name: Smoke test container
         run: |
