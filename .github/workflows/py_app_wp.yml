@@ -46,16 +46,12 @@ jobs:
           python3 --version
           python3 -m pip --version
 
-      - name: Install Python and pip
+      - name: Prepare Python environment
         run: |
-          python3 -m pip install --break-system-packages -r requirements.txt
-      
-      # - name: Install application dependencies
-      #   run: |
-      #     python3 -m venv venv
-      #     source venv/bin/activate
-      #     pip install --upgrade pip
-      #     pip install -r requirements.txt
+          python3 -m venv .venv
+          source .venv/bin/activate
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
 
   code-linting:
     name: Code linting
@@ -72,53 +68,60 @@ jobs:
 
       - name: Install lint tools
         run: |
-          python3 -m pip install --break-system-packages -r requirements.txt
-          python3 -m pip install --break-system-packages pytest
+          python3 -m venv .venv
+          source .venv/bin/activate
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt pylint
 
       - name: Run pylint
         run: |
+          source .venv/bin/activate
           pylint app.py
 
-unit-tests:
-  name: Unit tests
-  needs: runner-test
-  runs-on:
-    - self-hosted
-    - Linux
-    - X64
-    - aws
+  unit-tests:
+    name: Unit tests
+    needs: runner-test
+    runs-on:
+      - self-hosted
+      - Linux
+      - X64
+      - aws
 
-  steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Install test tools
-      run: |
-        python3 -m pip install --break-system-packages -r requirements.txt
-        python3 -m pip install --break-system-packages pytest pytest-cov
+      - name: Install test tools
+        run: |
+          python3 -m venv .venv
+          source .venv/bin/activate
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt pytest pytest-cov
 
-    - name: Verify installation
-      run: |
-        python3 --version
-        python3 -m pip --version
-        python3 -m pytest --version
+      - name: Verify installation
+        run: |
+          source .venv/bin/activate
+          python --version
+          python -m pip --version
+          python -m pytest --version
 
-    - name: Run unit tests with coverage
-      run: |
-        python3 -m pytest -q \
-          --cov=app \
-          --cov-report=term-missing \
-          --cov-report=xml \
-          --cov-report=html \
-          --cov-fail-under=70
+      - name: Run unit tests with coverage
+        run: |
+          source .venv/bin/activate
+          python -m pytest -q \
+            --cov=app \
+            --cov-report=term-missing \
+            --cov-report=xml \
+            --cov-report=html \
+            --cov-fail-under=70
 
-    - name: Upload coverage artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: coverage-report
-        path: |
-          coverage.xml
-          htmlcov/
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: |
+            coverage.xml
+            htmlcov/
 
   coverage-report:
     name: Coverage report
