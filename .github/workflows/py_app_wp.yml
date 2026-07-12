@@ -31,9 +31,9 @@ jobs:
         run: |
           set -euo pipefail
           REPO_DIR="$GITHUB_WORKSPACE/repo"
+          rm -rf "$REPO_DIR"
           mkdir -p "$REPO_DIR"
           git config --global --add safe.directory "$REPO_DIR"
-          find "$REPO_DIR" -mindepth 1 -maxdepth 1 -exec rm -rf {} + 2>/dev/null || true
           git clone --depth=1 "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "$REPO_DIR"
           cd "$REPO_DIR"
           git fetch --depth=1 origin "${GITHUB_SHA}"
@@ -92,9 +92,9 @@ jobs:
         run: |
           set -euo pipefail
           REPO_DIR="$GITHUB_WORKSPACE/repo"
+          rm -rf "$REPO_DIR"
           mkdir -p "$REPO_DIR"
           git config --global --add safe.directory "$REPO_DIR"
-          find "$REPO_DIR" -mindepth 1 -maxdepth 1 -exec rm -rf {} + 2>/dev/null || true
           git clone --depth=1 "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "$REPO_DIR"
           cd "$REPO_DIR"
           git fetch --depth=1 origin "${GITHUB_SHA}"
@@ -140,9 +140,9 @@ jobs:
         run: |
           set -euo pipefail
           REPO_DIR="$GITHUB_WORKSPACE/repo"
+          rm -rf "$REPO_DIR"
           mkdir -p "$REPO_DIR"
           git config --global --add safe.directory "$REPO_DIR"
-          find "$REPO_DIR" -mindepth 1 -maxdepth 1 -exec rm -rf {} + 2>/dev/null || true
           git clone --depth=1 "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "$REPO_DIR"
           cd "$REPO_DIR"
           git fetch --depth=1 origin "${GITHUB_SHA}"
@@ -212,9 +212,9 @@ jobs:
         run: |
           set -euo pipefail
           REPO_DIR="$GITHUB_WORKSPACE/repo"
+          rm -rf "$REPO_DIR"
           mkdir -p "$REPO_DIR"
           git config --global --add safe.directory "$REPO_DIR"
-          find "$REPO_DIR" -mindepth 1 -maxdepth 1 -exec rm -rf {} + 2>/dev/null || true
           git clone --depth=1 "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "$REPO_DIR"
           cd "$REPO_DIR"
           git fetch --depth=1 origin "${GITHUB_SHA}"
@@ -304,9 +304,9 @@ jobs:
         run: |
           set -euo pipefail
           REPO_DIR="$GITHUB_WORKSPACE/repo"
+          rm -rf "$REPO_DIR"
           mkdir -p "$REPO_DIR"
           git config --global --add safe.directory "$REPO_DIR"
-          find "$REPO_DIR" -mindepth 1 -maxdepth 1 -exec rm -rf {} + 2>/dev/null || true
           git clone --depth=1 "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "$REPO_DIR"
           cd "$REPO_DIR"
           git fetch --depth=1 origin "${GITHUB_SHA}"
@@ -347,9 +347,9 @@ jobs:
         run: |
           set -euo pipefail
           REPO_DIR="$GITHUB_WORKSPACE/repo"
+          rm -rf "$REPO_DIR"
           mkdir -p "$REPO_DIR"
           git config --global --add safe.directory "$REPO_DIR"
-          find "$REPO_DIR" -mindepth 1 -maxdepth 1 -exec rm -rf {} + 2>/dev/null || true
           git clone --depth=1 "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "$REPO_DIR"
           cd "$REPO_DIR"
           git fetch --depth=1 origin "${GITHUB_SHA}"
@@ -406,9 +406,9 @@ jobs:
         run: |
           set -euo pipefail
           REPO_DIR="$GITHUB_WORKSPACE/repo"
+          rm -rf "$REPO_DIR"
           mkdir -p "$REPO_DIR"
           git config --global --add safe.directory "$REPO_DIR"
-          find "$REPO_DIR" -mindepth 1 -maxdepth 1 -exec rm -rf {} + 2>/dev/null || true
           git clone --depth=1 "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "$REPO_DIR"
           cd "$REPO_DIR"
           git fetch --depth=1 origin "${GITHUB_SHA}"
