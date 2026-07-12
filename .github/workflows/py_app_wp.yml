@@ -24,10 +24,24 @@ jobs:
       - Linux
       - X64
       - aws
+    defaults:
+      run:
+        working-directory: /home/ubuntu/_work/Isha/${{ github.run_id }}-${{ github.run_attempt }}
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        run: |
+          set -euo pipefail
+          REPO_DIR="/home/ubuntu/_work/Isha/${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          mkdir -p "$REPO_DIR"
+          git config --global --add safe.directory "$REPO_DIR"
+          find "$REPO_DIR" -mindepth 1 -maxdepth 1 -exec rm -rf {} + 2>/dev/null || true
+          git clone --depth=1 "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "$REPO_DIR"
+          cd "$REPO_DIR"
+          git fetch --depth=1 origin "${GITHUB_SHA}"
+          git checkout -f FETCH_HEAD
+          echo "REPO_DIR=$REPO_DIR" >> "$GITHUB_ENV"
+          echo "Repository checked out to $REPO_DIR"
 
       - name: Display runner information
         run: |
@@ -62,6 +76,9 @@ jobs:
       - Linux
       - X64
       - aws
+    defaults:
+      run:
+        working-directory: /home/ubuntu/_work/Isha/${{ github.run_id }}-${{ github.run_attempt }}
 
     steps:
       - name: Prepare runner workspace
@@ -75,9 +92,17 @@ jobs:
           df -h /
 
       - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          clean: false
+        run: |
+          set -euo pipefail
+          REPO_DIR="/home/ubuntu/_work/Isha/${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          mkdir -p "$REPO_DIR"
+          git config --global --add safe.directory "$REPO_DIR"
+          find "$REPO_DIR" -mindepth 1 -maxdepth 1 -exec rm -rf {} + 2>/dev/null || true
+          git clone --depth=1 "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "$REPO_DIR"
+          cd "$REPO_DIR"
+          git fetch --depth=1 origin "${GITHUB_SHA}"
+          git checkout -f FETCH_HEAD
+          echo "REPO_DIR=$REPO_DIR" >> "$GITHUB_ENV"
 
       - name: Install lint tools
         run: |
@@ -100,6 +125,9 @@ jobs:
       - Linux
       - X64
       - aws
+    defaults:
+      run:
+        working-directory: /home/ubuntu/_work/Isha/${{ github.run_id }}-${{ github.run_attempt }}
 
     steps:
       - name: Prepare runner workspace
@@ -113,9 +141,17 @@ jobs:
           df -h /
 
       - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          clean: false
+        run: |
+          set -euo pipefail
+          REPO_DIR="/home/ubuntu/_work/Isha/${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          mkdir -p "$REPO_DIR"
+          git config --global --add safe.directory "$REPO_DIR"
+          find "$REPO_DIR" -mindepth 1 -maxdepth 1 -exec rm -rf {} + 2>/dev/null || true
+          git clone --depth=1 "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "$REPO_DIR"
+          cd "$REPO_DIR"
+          git fetch --depth=1 origin "${GITHUB_SHA}"
+          git checkout -f FETCH_HEAD
+          echo "REPO_DIR=$REPO_DIR" >> "$GITHUB_ENV"
 
       - name: Install test tools
         run: |
@@ -158,6 +194,9 @@ jobs:
       - Linux
       - X64
       - aws
+    defaults:
+      run:
+        working-directory: /home/ubuntu/_work/Isha/${{ github.run_id }}-${{ github.run_attempt }}
 
     steps:
       - name: Prepare runner workspace
@@ -191,6 +230,9 @@ jobs:
       - Linux
       - X64
       - aws
+    defaults:
+      run:
+        working-directory: /home/ubuntu/_work/Isha/${{ github.run_id }}-${{ github.run_attempt }}
 
     steps:
       - name: Prepare runner workspace
@@ -204,9 +246,17 @@ jobs:
           df -h /
 
       - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          clean: false
+        run: |
+          set -euo pipefail
+          REPO_DIR="/home/ubuntu/_work/Isha/${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          mkdir -p "$REPO_DIR"
+          git config --global --add safe.directory "$REPO_DIR"
+          find "$REPO_DIR" -mindepth 1 -maxdepth 1 -exec rm -rf {} + 2>/dev/null || true
+          git clone --depth=1 "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "$REPO_DIR"
+          cd "$REPO_DIR"
+          git fetch --depth=1 origin "${GITHUB_SHA}"
+          git checkout -f FETCH_HEAD
+          echo "REPO_DIR=$REPO_DIR" >> "$GITHUB_ENV"
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -273,6 +323,9 @@ jobs:
       - Linux
       - X64
       - aws
+    defaults:
+      run:
+        working-directory: /home/ubuntu/_work/Isha/${{ github.run_id }}-${{ github.run_attempt }}
 
     steps:
       - name: Prepare runner workspace
@@ -285,9 +338,17 @@ jobs:
           df -h /
 
       - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          clean: false
+        run: |
+          set -euo pipefail
+          REPO_DIR="/home/ubuntu/_work/Isha/${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          mkdir -p "$REPO_DIR"
+          git config --global --add safe.directory "$REPO_DIR"
+          find "$REPO_DIR" -mindepth 1 -maxdepth 1 -exec rm -rf {} + 2>/dev/null || true
+          git clone --depth=1 "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "$REPO_DIR"
+          cd "$REPO_DIR"
+          git fetch --depth=1 origin "${GITHUB_SHA}"
+          git checkout -f FETCH_HEAD
+          echo "REPO_DIR=$REPO_DIR" >> "$GITHUB_ENV"
 
       - name: Install Trivy
         run: |
@@ -306,6 +367,9 @@ jobs:
       - Linux
       - X64
       - aws
+    defaults:
+      run:
+        working-directory: /home/ubuntu/_work/Isha/${{ github.run_id }}-${{ github.run_attempt }}
 
     steps:
       - name: Prepare runner workspace
@@ -318,9 +382,17 @@ jobs:
           df -h /
 
       - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          clean: false
+        run: |
+          set -euo pipefail
+          REPO_DIR="/home/ubuntu/_work/Isha/${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          mkdir -p "$REPO_DIR"
+          git config --global --add safe.directory "$REPO_DIR"
+          find "$REPO_DIR" -mindepth 1 -maxdepth 1 -exec rm -rf {} + 2>/dev/null || true
+          git clone --depth=1 "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "$REPO_DIR"
+          cd "$REPO_DIR"
+          git fetch --depth=1 origin "${GITHUB_SHA}"
+          git checkout -f FETCH_HEAD
+          echo "REPO_DIR=$REPO_DIR" >> "$GITHUB_ENV"
 
       - name: Verify Syft
         run: syft version
@@ -353,6 +425,9 @@ jobs:
       - Linux
       - X64
       - aws
+    defaults:
+      run:
+        working-directory: /home/ubuntu/_work/Isha/${{ github.run_id }}-${{ github.run_attempt }}
 
     steps:
       - name: Prepare runner workspace
@@ -365,9 +440,17 @@ jobs:
           df -h /
 
       - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          clean: false
+        run: |
+          set -euo pipefail
+          REPO_DIR="/home/ubuntu/_work/Isha/${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          mkdir -p "$REPO_DIR"
+          git config --global --add safe.directory "$REPO_DIR"
+          find "$REPO_DIR" -mindepth 1 -maxdepth 1 -exec rm -rf {} + 2>/dev/null || true
+          git clone --depth=1 "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "$REPO_DIR"
+          cd "$REPO_DIR"
+          git fetch --depth=1 origin "${GITHUB_SHA}"
+          git checkout -f FETCH_HEAD
+          echo "REPO_DIR=$REPO_DIR" >> "$GITHUB_ENV"
 
       - name: Install Cosign
         run: |
