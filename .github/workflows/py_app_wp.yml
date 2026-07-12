@@ -52,6 +52,7 @@ jobs:
           source .venv/bin/activate
           python -m pip install --upgrade pip
           python -m pip install -r requirements.txt
+          python -m pip check
 
   code-linting:
     name: Code linting
@@ -72,6 +73,7 @@ jobs:
           source .venv/bin/activate
           python -m pip install --upgrade pip
           python -m pip install -r requirements.txt pylint
+          python -m pip check
 
       - name: Run pylint
         run: |
@@ -97,6 +99,7 @@ jobs:
           source .venv/bin/activate
           python -m pip install --upgrade pip
           python -m pip install -r requirements.txt pytest pytest-cov
+          python -m pip check
 
       - name: Verify installation
         run: |
