@@ -22,7 +22,6 @@ RUN pip install --no-cache-dir -r requirements.txt && \
 COPY app.py ./
 COPY tests ./tests
 COPY pytest.ini ./
-COPY sonar-project.properties ./
 RUN chown -R appuser:appgroup /app
 
 USER appuser
