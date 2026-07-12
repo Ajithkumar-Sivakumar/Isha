@@ -326,12 +326,42 @@ jobs:
           set -euo pipefail
           cd "$REPO_DIR"
           IMAGE_SHA=${GITHUB_SHA::8}
-          echo "IMAGE_URI=${IMAGE_URI}"
-          echo "IMAGE_SHA=${IMAGE_SHA}"
-          docker image inspect "${IMAGE_URI}:${IMAGE_SHA}"
-          syft "${IMAGE_URI}:${IMAGE_SHA}" \
+          IMAGE="${IMAGE_URI}:${IMAGE_SHA}"
+          echo "========================================="
+          echo "Generating SBOM"
+          echo "========================================="
+          echo "Image: ${IMAGE}"
+
+          echo "===== Local Images ====="
+          docker images
+
+          if ! docker image inspect "${IMAGE}" >/dev/null 2>&1; then
+          echo "Local image not found."
+
+          echo "Logging into Amazon ECR..."
+          aws ecr get-login-password --region "${AWS_REGION}" \
+            | docker login \
+                --username AWS \
+                --password-stdin \
+                "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+
+          echo "Pulling image from ECR..."
+          docker pull "${IMAGE}"
+          fi
+
+          echo "Creating Docker archive..."
+          docker save "${IMAGE}" -o image.tar
+
+          export GOMEMLIMIT=700MiB
+
+          echo "Generating CycloneDX SBOM..."
+          syft docker-archive:image.tar \
             -o cyclonedx-json \
             > sbom.json
+
+          echo "SBOM generated successfully."
+
+          ls -lh sbom.json
           
   sbom-generation:
     name: Generate SBOM
