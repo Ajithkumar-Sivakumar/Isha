@@ -39,6 +39,7 @@ jobs:
           git fetch --depth=1 origin "${GITHUB_SHA}"
           git checkout -f FETCH_HEAD
           echo "REPO_DIR=$REPO_DIR" >> "$GITHUB_ENV"
+          echo "PYTHONPATH=$REPO_DIR${PYTHONPATH:+:$PYTHONPATH}" >> "$GITHUB_ENV"
           echo "Repository checked out to $REPO_DIR"
 
       - name: Display runner information
@@ -60,6 +61,7 @@ jobs:
 
       - name: Prepare Python environment
         run: |
+          cd "$REPO_DIR"
           python3 -m venv .venv
           source .venv/bin/activate
           python -m pip install --upgrade pip
@@ -101,6 +103,7 @@ jobs:
 
       - name: Install lint tools
         run: |
+          cd "$REPO_DIR"
           python3 -m venv .venv
           source .venv/bin/activate
           python -m pip install --upgrade pip
@@ -109,6 +112,7 @@ jobs:
 
       - name: Run pylint
         run: |
+          cd "$REPO_DIR"
           source .venv/bin/activate
           pylint app.py
 
@@ -147,6 +151,7 @@ jobs:
 
       - name: Install test tools
         run: |
+          cd "$REPO_DIR"
           python3 -m venv .venv
           source .venv/bin/activate
           python -m pip install --upgrade pip
@@ -155,6 +160,7 @@ jobs:
 
       - name: Verify installation
         run: |
+          cd "$REPO_DIR"
           source .venv/bin/activate
           python --version
           python -m pip --version
@@ -162,6 +168,7 @@ jobs:
 
       - name: Run unit tests with coverage
         run: |
+          cd "$REPO_DIR"
           source .venv/bin/activate
           python -m pytest -q \
             --cov=app \
@@ -280,11 +287,13 @@ jobs:
 
       - name: Build Docker image
         run: |
+          cd "$REPO_DIR"
           IMAGE_SHA=${GITHUB_SHA::8}
           docker build --no-cache --pull=false -t "${IMAGE_URI}:latest" -t "${IMAGE_URI}:${IMAGE_SHA}" .
 
       - name: Smoke test container
         run: |
+          cd "$REPO_DIR"
           IMAGE_SHA=${GITHUB_SHA::8}
           docker run -d --name py-app-test -p 8080:8080 "${IMAGE_URI}:${IMAGE_SHA}"
           for i in {1..20}; do
@@ -297,6 +306,7 @@ jobs:
 
       - name: Push Docker image
         run: |
+          cd "$REPO_DIR"
           IMAGE_SHA=${GITHUB_SHA::8}
           docker push "${IMAGE_URI}:latest"
           docker push "${IMAGE_URI}:${IMAGE_SHA}"
@@ -335,10 +345,12 @@ jobs:
 
       - name: Install Trivy
         run: |
+          cd "$REPO_DIR"
           curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sudo sh
 
       - name: Scan container image
         run: |
+          cd "$REPO_DIR"
           IMAGE_SHA=${GITHUB_SHA::8}
           trivy image --exit-code 1 --severity HIGH,CRITICAL "${IMAGE_URI}:${IMAGE_SHA}" || true
 
@@ -375,10 +387,13 @@ jobs:
           echo "REPO_DIR=$REPO_DIR" >> "$GITHUB_ENV"
 
       - name: Verify Syft
-        run: syft version
+        run: |
+          cd "$REPO_DIR"
+          syft version
 
       - name: Install Syft
         run: |
+          cd "$REPO_DIR"
           if ! command -v syft >/dev/null 2>&1; then
             curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | \
               sudo sh -s -- -b /usr/local/bin
@@ -388,6 +403,7 @@ jobs:
 
       - name: Generate SBOM
         run: |
+          cd "$REPO_DIR"
           IMAGE_SHA=${GITHUB_SHA::8}
           syft "${IMAGE_URI}:${IMAGE_SHA}" -o json > sbom.json
 
@@ -431,10 +447,12 @@ jobs:
 
       - name: Install Cosign
         run: |
+          cd "$REPO_DIR"
           curl -sSfL https://raw.githubusercontent.com/sigstore/cosign/main/install.sh | sudo sh
 
       - name: Sign image
         run: |
+          cd "$REPO_DIR"
           IMAGE_SHA=${GITHUB_SHA::8}
           echo "Signing ${IMAGE_URI}:${IMAGE_SHA}"
           cosign sign --yes --key cosign.key "${IMAGE_URI}:${IMAGE_SHA}" || true
