@@ -1,2 +1,11 @@
 #Extension App-file
 *.md
+*/tests/__pycache__/
+.venv/
+__pycache__/
+.pytest_cache/
+htmlcov/
+coverage.xml
+sbom.json
+*.pyc
+.DS_Store

@@ -64,6 +64,15 @@ jobs:
       - aws
 
     steps:
+      - name: Clean stale workspace before checkout
+        run: |
+          echo "Cleaning stale runner files before checkout..."
+          sudo rm -rf "$GITHUB_WORKSPACE"/* "$GITHUB_WORKSPACE"/.[!.]* "$GITHUB_WORKSPACE"/..?* 2>/dev/null || true
+          sudo rm -rf /tmp/* /home/ubuntu/_work/_temp/* 2>/dev/null || true
+          sudo find /tmp -mindepth 1 -maxdepth 1 -type d -name 'tmp.*' -exec rm -rf {} + 2>/dev/null || true
+          sudo rm -rf /var/cache/apt/archives/* /var/lib/apt/lists/* 2>/dev/null || true
+          df -h /
+
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -90,6 +99,15 @@ jobs:
       - aws
 
     steps:
+      - name: Clean stale workspace before checkout
+        run: |
+          echo "Cleaning stale runner files before checkout..."
+          sudo rm -rf "$GITHUB_WORKSPACE"/* "$GITHUB_WORKSPACE"/.[!.]* "$GITHUB_WORKSPACE"/..?* 2>/dev/null || true
+          sudo rm -rf /tmp/* /home/ubuntu/_work/_temp/* 2>/dev/null || true
+          sudo find /tmp -mindepth 1 -maxdepth 1 -type d -name 'tmp.*' -exec rm -rf {} + 2>/dev/null || true
+          sudo rm -rf /var/cache/apt/archives/* /var/lib/apt/lists/* 2>/dev/null || true
+          df -h /
+
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -136,6 +154,14 @@ jobs:
       - aws
 
     steps:
+      - name: Clean stale workspace before checkout
+        run: |
+          echo "Cleaning stale runner files before checkout..."
+          sudo rm -rf "$GITHUB_WORKSPACE"/* "$GITHUB_WORKSPACE"/.[!.]* "$GITHUB_WORKSPACE"/..?* 2>/dev/null || true
+          sudo rm -rf /tmp/* /home/ubuntu/_work/_temp/* 2>/dev/null || true
+          sudo find /tmp -mindepth 1 -maxdepth 1 -type d -name 'tmp.*' -exec rm -rf {} + 2>/dev/null || true
+          df -h /
+
       - name: Download coverage artifact
         uses: actions/download-artifact@v4
         with:
@@ -160,6 +186,15 @@ jobs:
       - aws
 
     steps:
+      - name: Clean stale workspace before checkout
+        run: |
+          echo "Cleaning stale runner files before checkout..."
+          sudo rm -rf "$GITHUB_WORKSPACE"/* "$GITHUB_WORKSPACE"/.[!.]* "$GITHUB_WORKSPACE"/..?* 2>/dev/null || true
+          sudo rm -rf /tmp/* /home/ubuntu/_work/_temp/* 2>/dev/null || true
+          sudo find /tmp -mindepth 1 -maxdepth 1 -type d -name 'tmp.*' -exec rm -rf {} + 2>/dev/null || true
+          sudo rm -rf /var/cache/apt/archives/* /var/lib/apt/lists/* 2>/dev/null || true
+          df -h /
+
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -185,17 +220,22 @@ jobs:
 
       - name: Free disk space before build
         run: |
+          echo "Cleaning temporary build artifacts before Docker build..."
           docker system df || true
           docker builder prune -af || true
           docker image prune -af || true
-          sudo rm -rf /tmp/* || true
-          sudo rm -rf /var/lib/docker/overlay2/* || true
+          docker container prune -f || true
+          sudo rm -rf /tmp/* /home/ubuntu/_work/_temp/* 2>/dev/null || true
+          sudo find /tmp -mindepth 1 -maxdepth 1 -type d -name 'tmp.*' -exec rm -rf {} + 2>/dev/null || true
+          sudo rm -rf /var/lib/docker/overlay2/* /var/cache/apt/archives/* /var/lib/apt/lists/* 2>/dev/null || true
+          sudo find /var/lib/docker -mindepth 1 -maxdepth 2 \( -name 'tmp' -o -name 'volumes' \) -prune -o -type f -delete 2>/dev/null || true
+          sudo rm -rf /root/.cache /home/ubuntu/.cache /home/ubuntu/.npm 2>/dev/null || true
           df -h /
 
       - name: Build Docker image
         run: |
           IMAGE_SHA=${GITHUB_SHA::8}
-          docker build --no-cache --pull=false -t "${IMAGE_URI}:latest" -t "${IMAGE_URI}:${IMAGE_SHA}" .
+          docker build --progress=plain --no-cache --pull=false -t "${IMAGE_URI}:latest" -t "${IMAGE_URI}:${IMAGE_SHA}" .
 
       - name: Smoke test container
         run: |
@@ -225,6 +265,14 @@ jobs:
       - aws
 
     steps:
+      - name: Clean stale workspace before checkout
+        run: |
+          echo "Cleaning stale runner files before checkout..."
+          sudo rm -rf "$GITHUB_WORKSPACE"/* "$GITHUB_WORKSPACE"/.[!.]* "$GITHUB_WORKSPACE"/..?* 2>/dev/null || true
+          sudo rm -rf /tmp/* /home/ubuntu/_work/_temp/* 2>/dev/null || true
+          sudo find /tmp -mindepth 1 -maxdepth 1 -type d -name 'tmp.*' -exec rm -rf {} + 2>/dev/null || true
+          df -h /
+
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -247,6 +295,14 @@ jobs:
       - aws
 
     steps:
+      - name: Clean stale workspace before checkout
+        run: |
+          echo "Cleaning stale runner files before checkout..."
+          sudo rm -rf "$GITHUB_WORKSPACE"/* "$GITHUB_WORKSPACE"/.[!.]* "$GITHUB_WORKSPACE"/..?* 2>/dev/null || true
+          sudo rm -rf /tmp/* /home/ubuntu/_work/_temp/* 2>/dev/null || true
+          sudo find /tmp -mindepth 1 -maxdepth 1 -type d -name 'tmp.*' -exec rm -rf {} + 2>/dev/null || true
+          df -h /
+
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -275,6 +331,14 @@ jobs:
       - aws
 
     steps:
+      - name: Clean stale workspace before checkout
+        run: |
+          echo "Cleaning stale runner files before checkout..."
+          sudo rm -rf "$GITHUB_WORKSPACE"/* "$GITHUB_WORKSPACE"/.[!.]* "$GITHUB_WORKSPACE"/..?* 2>/dev/null || true
+          sudo rm -rf /tmp/* /home/ubuntu/_work/_temp/* 2>/dev/null || true
+          sudo find /tmp -mindepth 1 -maxdepth 1 -type d -name 'tmp.*' -exec rm -rf {} + 2>/dev/null || true
+          df -h /
+
       - name: Checkout repository
         uses: actions/checkout@v4
 
