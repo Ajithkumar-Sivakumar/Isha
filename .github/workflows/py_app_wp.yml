@@ -31,8 +31,8 @@ jobs:
         run: |
           set -euo pipefail
           REPO_DIR="$GITHUB_WORKSPACE/repo"
-          rm -rf "$REPO_DIR"
-          mkdir -p "$REPO_DIR"
+          sudo rm -rf "$REPO_DIR"
+          sudo mkdir -p "$REPO_DIR"
           git config --global --add safe.directory "$REPO_DIR"
           git clone --depth=1 "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "$REPO_DIR"
           cd "$REPO_DIR"
