@@ -24,7 +24,10 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} .
+          docker build \
+            -t ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} \
+            -f docker-test/Dockerfile \
+            docker-test
 
       - name: Save image as tar
         run: |
