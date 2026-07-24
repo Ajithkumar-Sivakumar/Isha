@@ -38,7 +38,7 @@ jobs:
         run: sleep 20
 
       - name: Verify Running Containers
-        run: docker ps
+        run: docker compose -f docker-compose/docker-compose.yaml ps
 
       - name: Verify Nginx Service
         run: |
@@ -52,6 +52,6 @@ jobs:
         if: always()
         run: docker compose -f docker-compose/docker-compose.yaml logs
 
-      - name: Cleanup
-        if: always()
-        run: docker compose -f docker-compose/docker-compose.yaml down -v
+      # - name: Cleanup
+      #   if: always()
+      #   run: docker compose -f docker-compose/docker-compose.yaml down -v
