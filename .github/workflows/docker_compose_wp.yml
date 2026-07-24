@@ -22,7 +22,7 @@ jobs:
         run: docker compose version
 
       - name: Validate Compose File
-        run: docker compose config
+        run: docker compose -f docker-compose/compose.yaml config
 
       - name: Pull Images
         run: docker compose pull
