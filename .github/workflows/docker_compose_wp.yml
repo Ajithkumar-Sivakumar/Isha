@@ -3,7 +3,7 @@ name: Docker Compose Deployment
 on:
   push:
     branches:
-      - docker-compose
+      - feature/sdocker-compose
 
   workflow_dispatch:
 
