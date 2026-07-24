@@ -3,10 +3,13 @@ name: Docker Compose Deployment
 on:
   push:
     branches:
-      - feature/docker-compose
+      - docker-compose
+
+  workflow_dispatch:
 
 jobs:
   deploy:
+
     runs-on:
       - self-hosted
       - Linux
@@ -14,53 +17,78 @@ jobs:
       - GithubRunner
 
     steps:
+
+      # Checkout the repository
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Copy Project to EC2
+      # Copy the docker-compose project to the deployment server
+      - name: Copy Project to Deployment Server
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
-          password: ${{ secrets.EC2_PASSWORD }}
+          key: ${{ secrets.EC2_SSH_KEY }}
           source: "docker-compose/*"
-          target: "/home/${{ secrets.EC2_USER }}/docker-compose-app"
+          target: "/home/${{ secrets.EC2_USER }}/docker-compose"
 
-      - name: Deploy on EC2
+      # Deploy the application
+      - name: Deploy Docker Compose Application
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
-          password: ${{ secrets.EC2_PASSWORD }}
+          key: ${{ secrets.EC2_SSH_KEY }}
           script: |
+
             cd /home/${{ secrets.EC2_USER }}/docker-compose
 
+            echo "================================="
             echo "Docker Version"
+            echo "================================="
             docker --version
 
+            echo "================================="
             echo "Docker Compose Version"
+            echo "================================="
             docker compose version
 
+            echo "================================="
             echo "Validate Compose File"
+            echo "================================="
             docker compose config
 
-            echo "Pull Images"
+            echo "================================="
+            echo "Pull Latest Images"
+            echo "================================="
             docker compose pull
 
+            echo "================================="
             echo "Stop Existing Containers"
+            echo "================================="
             docker compose down
 
+            echo "================================="
             echo "Start Application"
+            echo "================================="
             docker compose up -d --build
 
+            echo "================================="
             echo "Running Containers"
+            echo "================================="
             docker ps
 
+            echo "================================="
             echo "Verify Nginx"
+            echo "================================="
             curl -I http://localhost:8080
 
+            echo "================================="
             echo "Verify MySQL"
+            echo "================================="
             docker exec mysql-db mysqladmin ping -uroot -proot123
 
+            echo "================================="
             echo "Container Logs"
-            docker compose logs --tail=100s
+            echo "================================="
+            docker compose logs --tail=100
