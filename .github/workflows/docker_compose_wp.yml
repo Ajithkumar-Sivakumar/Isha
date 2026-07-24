@@ -1,94 +1,53 @@
-name: Docker Compose Deployment
+name: Docker Compose CI
 
 on:
   push:
     branches:
       - feature/docker-compose
 
-  workflow_dispatch:
-
 jobs:
-  deploy:
+  verify-compose:
 
-    runs-on:
-      - self-hosted
-      - Linux
-      - X64
-      - GithubRunner
+    runs-on: ubuntu-latest
 
     steps:
 
-      # Checkout the repository
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # Copy the docker-compose project to the deployment server
-      - name: Copy Project to Deployment Server
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          source: "docker-compose/*"
-          target: "/home/${{ secrets.EC2_USER }}/docker-compose"
+      - name: Verify Docker Installation
+        run: docker --version
 
-      # Deploy the application
-      - name: Deploy Docker Compose Application
-        uses: appleboy/ssh-action@v1.2.0
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          script: |
+      - name: Verify Docker Compose Installation
+        run: docker compose version
 
-            cd /home/${{ secrets.EC2_USER }}/docker-compose
+      - name: Validate Compose File
+        run: docker compose config
 
-            echo "================================="
-            echo "Docker Version"
-            echo "================================="
-            docker --version
+      - name: Pull Images
+        run: docker compose pull
 
-            echo "================================="
-            echo "Docker Compose Version"
-            echo "================================="
-            docker compose version
+      - name: Start Containers
+        run: docker compose up -d
 
-            echo "================================="
-            echo "Validate Compose File"
-            echo "================================="
-            docker compose config
+      - name: Wait for Containers
+        run: sleep 20
 
-            echo "================================="
-            echo "Pull Latest Images"
-            echo "================================="
-            docker compose pull
+      - name: Verify Running Containers
+        run: docker ps
 
-            echo "================================="
-            echo "Stop Existing Containers"
-            echo "================================="
-            docker compose down
+      - name: Verify Nginx Service
+        run: |
+          curl -I http://localhost:8080
 
-            echo "================================="
-            echo "Start Application"
-            echo "================================="
-            docker compose up -d --build
+      - name: Verify MySQL Container
+        run: |
+          docker exec mysql-db mysqladmin ping -uroot -proot123
 
-            echo "================================="
-            echo "Running Containers"
-            echo "================================="
-            docker ps
+      - name: Display Logs
+        if: always()
+        run: docker compose logs
 
-            echo "================================="
-            echo "Verify Nginx"
-            echo "================================="
-            curl -I http://localhost:8080
-
-            echo "================================="
-            echo "Verify MySQL"
-            echo "================================="
-            docker exec mysql-db mysqladmin ping -uroot -proot123
-
-            echo "================================="
-            echo "Container Logs"
-            echo "================================="
-            docker compose logs --tail=100
+      - name: Cleanup
+        if: always()
+        run: docker compose down -v
