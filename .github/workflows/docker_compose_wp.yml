@@ -3,8 +3,8 @@ name: Docker Compose Deployment
 on:
   push:
     branches:
-      - docker-compose
-      
+      - feature/docker-compose
+
 jobs:
   deploy:
     runs-on:
