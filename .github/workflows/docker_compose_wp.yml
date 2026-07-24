@@ -25,10 +25,10 @@ jobs:
         run: docker compose -f docker-compose/docker-compose.yaml config
 
       - name: Pull Images
-        run: docker compose -f docker-compose/docker-compose.yamlpull
+        run: docker compose -f docker-compose/docker-compose.yaml pull
 
       - name: Start Containers
-        run: docker compose up -d
+        run: docker compose -f docker-compose/docker-compose.yaml up -d
 
       - name: Wait for Containers
         run: sleep 20
