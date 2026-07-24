@@ -1,0 +1,66 @@
+name: Docker Compose Deployment
+
+on:
+  push:
+    branches:
+      - docker-compose
+      
+jobs:
+  deploy:
+    runs-on:
+      - self-hosted
+      - Linux
+      - X64
+      - GithubRunner
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Copy Project to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          password: ${{ secrets.EC2_PASSWORD }}
+          source: "docker-compose/*"
+          target: "/home/${{ secrets.EC2_USER }}/docker-compose-app"
+
+      - name: Deploy on EC2
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          password: ${{ secrets.EC2_PASSWORD }}
+          script: |
+            cd /home/${{ secrets.EC2_USER }}/docker-compose
+
+            echo "Docker Version"
+            docker --version
+
+            echo "Docker Compose Version"
+            docker compose version
+
+            echo "Validate Compose File"
+            docker compose config
+
+            echo "Pull Images"
+            docker compose pull
+
+            echo "Stop Existing Containers"
+            docker compose down
+
+            echo "Start Application"
+            docker compose up -d --build
+
+            echo "Running Containers"
+            docker ps
+
+            echo "Verify Nginx"
+            curl -I http://localhost:8080
+
+            echo "Verify MySQL"
+            docker exec mysql-db mysqladmin ping -uroot -proot123
+
+            echo "Container Logs"
+            docker compose logs --tail=100s
