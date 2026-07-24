@@ -25,7 +25,7 @@ jobs:
         run: docker compose -f docker-compose/docker-compose.yaml config
 
       - name: Pull Images
-        run: docker compose pull
+        run: docker compose -f docker-compose/docker-compose.yamlpull
 
       - name: Start Containers
         run: docker compose up -d
