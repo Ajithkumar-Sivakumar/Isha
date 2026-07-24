@@ -1,0 +1,18 @@
+services: # list of services we have are going to start. services is the main section where we define all containers.
+  web: # Defines a service named web. This is the logical name used by Docker Compose.
+    image: nginx:latest # Use the official Nginx image from Docker Hub to be pulled.
+    container_name: web-server # Gives the container a custom name.
+    ports:
+      - "8080:80" # Nginx listens inside the container on 80. And you access it from your machine using 8080.
+  db: # Defines another service called. This service runs MySQL.
+    image: mysql:8.0 # Use the official MySQL image from Docker Hub to be pulled.
+    container_name: mysql-db # Gives the container a custom name.
+    environment: # Pass environment variables into the MySQL container. Creates MySQL root password for root user.
+      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_DATABASE: employee_db
+    ports:
+      - "3306:3306" # MySQL listens inside the container on 3306. And you access it from your machine using 3306.
+    volumes: # MySQL stores actual table data inside the container.
+      - mysql_data:/var/lib/mysql
+volumes:
+  mysql_data: # Docker stores this data in a volume called mysql_data.
