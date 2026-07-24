@@ -8,7 +8,11 @@ on:
 jobs:
   verify-compose:
 
-    runs-on: ubuntu-latest
+    runs-on: 
+        - self-hosted
+        - Linux
+        - X64
+        - GithubRunner
 
     steps:
 
