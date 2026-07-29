@@ -38,7 +38,7 @@ jobs:
 
       run:
 
-        working-directory: terraform
+        working-directory: terraform-k8s
 
 
     steps:
