@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       action:
-        description: "Select the Terraform action"
+        description: "Terraform Action"
         required: true
-        default: "deploy"
+        default: deploy
         type: choice
         options:
           - deploy
@@ -15,10 +15,9 @@ on:
 jobs:
 
   deploy:
+    if: github.event.inputs.action == 'deploy'
 
-    if: github.ref == 'refs/heads/AWS-k8s' && github.event.inputs.action == 'deploy'
-
-    runs-on: 
+    runs-on:
       - self-hosted
       - Linux
       - X64
@@ -29,45 +28,30 @@ jobs:
         working-directory: terraform
 
     steps:
+      - uses: actions/checkout@v4
 
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
 
-      - name: Checkout AWS-k8s Branch
-        uses: actions/checkout@v4
-        with:
-          ref: AWS-k8s
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
+      - uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Terraform Format
-        run: terraform fmt
+      - run: terraform fmt
 
-      - name: Terraform Init
-        run: terraform init
+      - run: terraform init
 
-      - name: Terraform Validate
-        run: terraform validate
+      - run: terraform validate
 
-      - name: Terraform Plan
-        run: terraform plan
+      - run: terraform plan
 
-      - name: Terraform Apply
-        run: terraform apply -auto-approve
+      - run: terraform apply -auto-approve
 
   destroy:
+    if: github.event.inputs.action == 'destroy'
 
-    if: github.ref == 'refs/heads/AWS-k8s' && github.event.inputs.action == 'destroy'
-
-    runs-on: 
+    runs-on:
       - self-hosted
       - Linux
       - X64
@@ -78,33 +62,20 @@ jobs:
         working-directory: terraform
 
     steps:
+      - uses: actions/checkout@v4
 
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
 
-      - name: Checkout AWS-k8s Branch
-        uses: actions/checkout@v4
-        with:
-          ref: AWS-k8s
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
+      - uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Terraform Init
-        run: terraform init
+      - run: terraform init
 
-      - name: Terraform Validate
-        run: terraform validate
+      - run: terraform validate
 
-      - name: Terraform Plan Destroy
-        run: terraform plan -destroy
+      - run: terraform plan -destroy
 
-      - name: Terraform Destroy
-        run: terraform destroy -auto-approve
+      - run: terraform destroy -auto-approve
