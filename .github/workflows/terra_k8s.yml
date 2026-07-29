@@ -1,21 +1,31 @@
 name: Terraform EKS Deployment
 
 on:
+
   workflow_dispatch:
+
     inputs:
+
       action:
-        description: "Choose Terraform Action"
+
+        description: "Select Terraform Action"
+
         required: true
+
         default: deploy
+
         type: choice
+
         options:
           - deploy
           - destroy
 
+
 jobs:
 
-  deploy:
-    if: ${{ inputs.action == 'deploy' }}
+
+  terraform:
+
 
     runs-on:
       - self-hosted
@@ -23,59 +33,81 @@ jobs:
       - X64
       - GithubRunner
 
-    defaults:
-      run:
-        working-directory: terraform
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: hashicorp/setup-terraform@v3
-
-      - uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
-
-      - run: terraform fmt
-
-      - run: terraform init
-
-      - run: terraform validate
-
-      - run: terraform plan
-
-      - run: terraform apply -auto-approve
-
-  destroy:
-    if: ${{ inputs.action == 'destroy' }}
-
-    runs-on:
-      - self-hosted
-      - Linux
-      - X64
-      - GithubRunner
 
     defaults:
+
       run:
+
         working-directory: terraform
 
+
     steps:
-      - uses: actions/checkout@v4
 
-      - uses: hashicorp/setup-terraform@v3
 
-      - uses: aws-actions/configure-aws-credentials@v4
+      - name: Checkout Repository
+
+        uses: actions/checkout@v4
+
+
+
+      - name: Setup Terraform
+
+        uses: hashicorp/setup-terraform@v3
+
+
+
+      - name: Configure AWS Credentials
+
+        uses: aws-actions/configure-aws-credentials@v4
+
         with:
+
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - run: terraform init
 
-      - run: terraform validate
 
-      - run: terraform plan -destroy
+      - name: Terraform Init
 
-      - run: terraform destroy -auto-approve
+        run: terraform init
+
+
+
+      - name: Terraform Validate
+
+        run: terraform validate
+
+
+
+      - name: Terraform Plan Deploy
+
+        if: inputs.action == 'deploy'
+
+        run: terraform plan
+
+
+
+      - name: Terraform Apply
+
+        if: inputs.action == 'deploy'
+
+        run: terraform apply -auto-approve
+
+
+
+      - name: Terraform Plan Destroy
+
+        if: inputs.action == 'destroy'
+
+        run: terraform plan -destroy
+
+
+
+      - name: Terraform Destroy
+
+        if: inputs.action == 'destroy'
+
+        run: terraform destroy -auto-approve
