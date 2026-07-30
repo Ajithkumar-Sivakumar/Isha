@@ -12,6 +12,10 @@ module "eks" {
 
   subnet_ids = module.vpc.private_subnets
 
+  endpoint_public_access = true
+
+  endpoint_private_access = true
+
   enable_cluster_creator_admin_permissions = true
 
   eks_managed_node_groups = {
@@ -35,7 +39,7 @@ module "eks" {
   }
 
   tags = {
-    Environment = "Student"
+    Environment = "demo"
     Terraform = "true"
   }
 
