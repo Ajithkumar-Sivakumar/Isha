@@ -1,5 +1,5 @@
 #Extension App-file
-*.md
+Doc/
 */tests/__pycache__/
 .venv/
 __pycache__/

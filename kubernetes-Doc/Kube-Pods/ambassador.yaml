@@ -1,0 +1,36 @@
+# Primary Container = Nginx Application
+# Secondary Container = Nginx Proxy (Ambassador)
+# The application never talks directly.
+# Instead it communicates with the Ambassador container.
+
+# API Version
+apiVersion: v1
+
+# Kubernetes Object Type
+kind: Pod
+
+metadata:
+  # Name of the Pod
+  name: ambassador-demo
+
+spec:
+
+  # Primary Application Container
+  containers:
+
+  - name: application-container
+
+    # Nginx acts as our Primary Application
+    image: nginx:latest
+
+    ports: # Expose application on port 80
+    - containerPort: 80
+
+  # Ambassador Container
+  - name: nginx-ambassador
+
+    # Nginx acts as Reverse Proxy
+    image: nginx:latest
+
+    ports:
+    - containerPort: 8080 

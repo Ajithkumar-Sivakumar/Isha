@@ -1,0 +1,58 @@
+# Primary Container = Legacy Application and The application generates plain text logs.The application generates plain text logs.
+# Secondary Container = Fluentd Adapter and converts the logs into JSON.
+
+# API Version
+apiVersion: v1
+
+# Kubernetes Object Type
+kind: Pod
+
+metadata:
+  # Name of the Pod
+  name: adapter-demo
+
+spec:
+
+  containers:
+
+  # Primary Application Container
+  - name: application-container
+
+    # BusyBox simulates a legacy application
+    image: busybox
+
+    command: # Command to run the container to execute the below script to generate logs.
+    - sh
+    - -c
+
+    # Continuously generate sample logs
+    - |
+      while true
+      do
+        echo "User Login Successful" >> /logs/app.log
+        sleep 5
+      done
+
+    volumeMounts:
+
+    # Mount shared log directory
+    - name: application-logs
+      mountPath: /logs
+
+  # Adapter Container
+  - name: fluentd-adapter
+
+    # Fluentd converts logs into JSON format
+    image: fluent/fluentd:v1.16
+
+    volumeMounts:
+
+    # Reads the same shared logs
+    - name: application-logs
+      mountPath: /logs
+
+  # Shared Storage
+  volumes:
+
+  - name: application-logs
+    emptyDir: {}

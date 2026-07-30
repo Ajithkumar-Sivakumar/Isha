@@ -1,0 +1,60 @@
+# Init Container = Downloads configuration
+# Primary Container = Spring Boot Application
+# The Init Container MUST complete successfully
+# before the Application Container starts.
+
+# API Version
+apiVersion: v1
+
+# Kubernetes Object Type
+kind: Pod
+
+metadata:
+  # Name of the Pod
+  name: init-container-demo
+
+spec:
+
+  # Init Containers always execute FIRST
+  initContainers:
+
+  - name: download-config
+
+    # BusyBox downloads configuration
+    image: busybox
+
+    command:
+    - sh
+    - -c
+
+    # Simulate downloading configuration file
+    - |
+      echo "Downloading Application Configuration"
+
+      echo "server.port=8080" > /config/application.properties
+
+    volumeMounts:
+
+    # Save configuration into shared volume
+    - name: application-config
+      mountPath: /config
+
+  # Primary Application Container
+  containers:
+
+  - name: application-container
+
+    # Nginx simulates the application
+    image: nginx:latest
+
+    volumeMounts:
+
+    # Read configuration prepared by Init Container
+    - name: application-config
+      mountPath: /config
+
+  # Shared Storage
+  volumes:
+
+  - name: application-config
+    emptyDir: {}

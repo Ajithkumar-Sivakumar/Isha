@@ -1,0 +1,82 @@
+# Primary Container = Application Container
+# Helper Container = Backup Utility periodically backs up application data without interrupting users.
+
+# API Version
+apiVersion: v1
+
+# Kubernetes Object Type
+kind: Pod
+
+metadata:
+  # Name of the Pod
+  name: helper-demo
+
+spec:
+
+  containers:
+
+  # Primary Application Container
+  - name: application-container
+
+    # BusyBox simulates the application
+    image: busybox
+
+    command:
+    - sh
+    - -c
+
+    # Generate sample order data
+    - |
+      while true
+      do
+        date >> /data/orders.txt
+        sleep 10
+      done
+
+    volumeMounts:
+
+    # Store generated data
+    - name: application-data
+      mountPath: /data
+
+  # Helper Container
+  - name: backup-helper
+
+    # BusyBox simulates backup utility
+    image: busybox
+
+    command:
+    - sh
+    - -c
+
+    # Backup every 60 seconds
+    - |
+      while true
+      do
+        cp /data/orders.txt /backup/orders.txt
+
+        echo "Backup Completed Successfully"
+
+        sleep 60
+      done
+
+    volumeMounts:
+
+    # Read application data
+    - name: application-data
+      mountPath: /data
+
+    # Store backup copy
+    - name: backup-storage
+      mountPath: /backup
+
+  # Shared Volumes
+  volumes:
+
+  # Shared application data
+  - name: application-data
+    emptyDir: {}
+
+  # Backup location
+  - name: backup-storage
+    emptyDir: {}

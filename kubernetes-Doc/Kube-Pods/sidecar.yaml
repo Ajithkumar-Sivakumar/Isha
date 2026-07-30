@@ -1,0 +1,45 @@
+# Primary container = Nginx Web Server
+# Secondary container = Fluent Bit automatically collects logs.
+
+# API Version
+apiVersion: v1
+
+# Kubernetes Object Type
+kind: Pod
+
+metadata:
+  # Name of the Pod
+  name: sidecar-demo
+
+spec:
+
+  # List of Containers
+  containers:
+  # Primary Application Container
+
+  - name: application-container
+
+    # Nginx acts as our Primary Application Container
+    image: nginx:latest
+
+    ports: # Expose port 80 for the Nginx web server
+    - containerPort: 80
+
+    volumeMounts: # Mount shared volume
+    - name: app-logs
+      mountPath: /var/log/nginx # Nginx writes logs here
+
+  # Sidecar Container
+  - name: fluent-bit
+
+    # Reads logs from shared volume
+    image: fluent/fluent-bit:latest #image for Fluent Bit
+
+    volumeMounts:
+    - name: app-logs
+      mountPath: /var/log/nginx # Fluent Bit reads logs from here
+
+  # Shared storage between both containers
+  volumes:
+  - name: app-logs #Shared volume name
+    emptyDir: {} #Volume is empty here
