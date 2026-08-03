@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: nginx-externalname
+
+spec:
+
+  replicas: 3
+
+  selector:
+    matchLabels:
+      app: nginx-en
+
+  template:
+
+    metadata:
+      labels:
+        app: nginx-en
+
+    spec:
+
+      containers:
+
+      - name: nginx
+
+        image: nginx:1.25
+
+        ports:
+
+        - containerPort: 80
+
+---
+
+##############################################################
+# EXTERNAL NAME SERVICE
+##############################################################
+
+apiVersion: v1
+kind: Service
+
+metadata:
+    name: nginx-external-service
+
+spec:
+
+  ############################################################
+  # Service Type
+  ############################################################
+
+  type: ExternalName
+
+  ############################################################
+  # Service selects Pods having
+  #
+  # app=nginx-en
+  ############################################################
+
+  selector:
+    app: nginx-en
+
+  ############################################################
+  # Port Mapping
+  ############################################################
+
+  ports:
+
+  - protocol: TCP
+
+    port: 80
+
+    targetPort: 80

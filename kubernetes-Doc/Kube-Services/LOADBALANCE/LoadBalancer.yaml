@@ -1,0 +1,147 @@
+##############################################################
+# LOADBALANCER SERVICE (ON-PREMISES USING METALLB)
+##############################################################
+
+# This file creates:
+#
+# 1. Deployment
+# 2. LoadBalancer Service
+#
+# In a Data Center,
+# Kubernetes does NOT create a Load Balancer automatically.
+#
+# MetalLB assigns an IP Address from its configured IP Pool.
+#
+# Example IP Pool
+#
+# 192.168.10.200 - 192.168.10.220
+#
+##############################################################
+
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: nginx-loadbalancer
+
+spec:
+
+  replicas: 3
+
+  selector:
+    matchLabels:
+      app: nginx-lb
+
+  template:
+
+    metadata:
+      labels:
+        app: nginx-lb
+
+    spec:
+
+      containers:
+
+      - name: nginx
+
+        image: nginx:1.25
+
+        ports:
+
+        - containerPort: 80
+
+---
+
+##############################################################
+# LOADBALANCER SERVICE
+##############################################################
+
+apiVersion: v1
+kind: Service
+
+metadata:
+  name: nginx-loadbalancer-service
+
+spec:
+
+  ############################################################
+  # Service Type
+  ############################################################
+
+  type: LoadBalancer
+
+  ############################################################
+  # Service selects Pods having
+  #
+  # app=nginx-lb
+  ############################################################
+
+  selector:
+    app: nginx-lb
+
+  ############################################################
+  # Port Mapping
+  ############################################################
+
+  ports:
+
+  - protocol: TCP
+
+    port: 80
+
+    targetPort: 80
+
+##############################################################
+# DEPLOY
+#
+# kubectl apply -f loadbalancer.yaml
+##############################################################
+
+##############################################################
+# VERIFY
+#
+# kubectl get deployment
+#
+# kubectl get pods
+#
+# kubectl get svc
+##############################################################
+
+##############################################################
+# EXPECTED OUTPUT
+#
+# NAME                         TYPE           CLUSTER-IP
+# nginx-loadbalancer-service   LoadBalancer   10.96.40.10
+#
+# EXTERNAL-IP
+#
+# 192.168.10.200
+#
+##############################################################
+
+##############################################################
+# HOW DOES IT WORK?
+#
+# User
+#      │
+#      ▼
+# http://192.168.10.200
+#
+#      │
+#      ▼
+# LoadBalancer Service
+#
+#      │
+#      ▼
+# Pod 1
+# Pod 2
+# Pod 3
+
+# Browser Test
+#
+# http://192.168.10.200
+#
+# OR
+#
+# http://portal.company.local
+#

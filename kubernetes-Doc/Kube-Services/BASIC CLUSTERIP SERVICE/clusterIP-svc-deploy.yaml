@@ -1,0 +1,33 @@
+##############################################################
+# 1. BASIC CLUSTERIP SERVICE
+##############################################################
+
+# This example creates:
+# 1. Deployment
+# 2. ClusterIP Service
+
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: nginx-clusterip-basic
+
+spec:
+  replicas: 2
+
+  selector:
+    matchLabels:
+      app: nginx-basic
+
+  template:
+    metadata:
+      labels:
+        app: nginx-basic
+
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.25
+
+        ports:
+        - containerPort: 80

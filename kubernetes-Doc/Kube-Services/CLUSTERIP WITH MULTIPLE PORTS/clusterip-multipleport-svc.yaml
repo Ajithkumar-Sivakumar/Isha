@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Service
+
+metadata:
+  name: nginx-service-multi
+
+spec:
+
+  type: ClusterIP
+
+  selector:
+    app: nginx-multi
+
+  ports:
+
+  - name: http
+    port: 80
+    targetPort: 80
+
+  - name: https
+    port: 443
+    targetPort: 443
