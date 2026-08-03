@@ -1,0 +1,48 @@
+# API version for Deployment resource
+apiVersion: apps/v1
+
+# We are creating a Deployment object
+kind: Deployment
+
+# Metadata contains information about the Deployment
+metadata:
+  # Name of the Deployment
+  name: rollback-app
+
+# Desired state of the Deployment
+spec:
+
+  # Kubernetes should always maintain 3 Pods
+  replicas: 3
+
+  # Selector identifies which Pods belong to this Deployment
+  selector:
+    matchLabels:
+      app: rollback
+
+  # Template defines how new Pods should be created
+  template:
+
+    # Labels assigned to every Pod
+    metadata:
+      labels:
+        app: rollback
+
+    # Pod specification
+    spec:
+
+      # Container list
+      containers:
+
+      # Container name
+      - name: rollback-container
+
+        # Current image: nginx:1.27
+        # New image: nginx:1.28
+        # kubectl set image deployment/rollback-app rollback-container=nginx:1.28 -- upgrade the image to nginx:1.28
+        # Rollback to previous image: nginx:1.27 with kubectl set image deployment/rollback-app rollback-container=nginx:1.27
+        image: nginx:1.27
+
+        # Container listens on port 80
+        ports:
+        - containerPort: 80

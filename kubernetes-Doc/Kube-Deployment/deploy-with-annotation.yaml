@@ -1,0 +1,79 @@
+# API Version
+apiVersion: apps/v1
+
+# Kubernetes Object Type
+kind: Deployment
+
+metadata:
+
+  # Name of the Deployment
+  name: nginx-deployment
+
+  # Labels are used to identify this Deployment
+  labels:
+    app: nginx
+    environment: production
+
+  # Annotations store additional information
+  # They are NOT used by Kubernetes for selecting resources.
+  # They are mainly used for documentation, monitoring,
+  # CI/CD tools, and external integrations.
+  annotations:
+    description: Demo Web Server
+    owner: Platfrom Team
+    application: Deploy Demo
+    created-by: AJ
+    version: "1.0"
+
+spec:
+
+  # Number of Pods to create
+  replicas: 2
+
+  # Deployment manages Pods with this label. 
+  # This selector will match the pods and create it.
+  # One label is used to FIND Pods
+  selector:
+    matchLabels:
+      app: nginx
+
+  # Template used to create Pods
+  template:
+
+    metadata:
+
+      # Labels assigned to every Pod
+      # This label is added to every Pod created by the Deployment.
+      # One label is used to CREATE Pods
+      # Manage every Pod that has the label app=nginx
+      labels:
+        app: nginx
+
+      # Pod-level annotations
+      annotations:
+        monitoring: "enabled"
+        logging: "fluent-bit"
+
+    spec:
+
+      containers:
+
+      # Application Container
+      - name: nginx-container
+
+        image: nginx:latest
+
+        imagePullPolicy: IfNotPresent
+
+        ports:
+        - containerPort: 80
+
+        resources:
+
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+
+          limits:
+            cpu: "500m"
+            memory: "512Mi"

@@ -1,0 +1,475 @@
+##############################################################
+# 1. BASIC DEPLOYMENT
+##############################################################
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deployment-basic
+
+spec:
+  replicas: 2
+
+  selector:
+    matchLabels:
+      app: nginx-basic
+
+  template:
+    metadata:
+      labels:
+        app: nginx-basic
+
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.25
+        ports:
+        - containerPort: 80
+
+---
+
+##############################################################
+# 2. DEPLOYMENT WITH LABELS
+##############################################################
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deployment-labels
+
+spec:
+  replicas: 2
+
+  selector:
+    matchLabels:
+      app: nginx
+      env: dev
+
+  template:
+    metadata:
+      labels:
+        app: nginx
+        env: dev
+        team: platform
+
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.25
+
+---
+
+##############################################################
+# 3. DEPLOYMENT WITH ANNOTATIONS
+##############################################################
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deployment-annotations
+  annotations:
+    owner: ajith
+    project: platform-engineering
+
+spec:
+  replicas: 2
+
+  selector:
+    matchLabels:
+      app: nginx-annotation
+
+  template:
+    metadata:
+      labels:
+        app: nginx-annotation
+      annotations:
+        version: "1.0"
+
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.25
+
+---
+
+##############################################################
+# 4. DEPLOYMENT WITH ENVIRONMENT VARIABLES
+##############################################################
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deployment-env
+
+spec:
+  replicas: 2
+
+  selector:
+    matchLabels:
+      app: nginx-env
+
+  template:
+    metadata:
+      labels:
+        app: nginx-env
+
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.25
+
+        env:
+        - name: APP_NAME
+          value: PlatformEngineering
+
+        - name: ENVIRONMENT
+          value: Development
+
+---
+
+##############################################################
+# 5. DEPLOYMENT WITH RESOURCE LIMITS
+##############################################################
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deployment-resources
+
+spec:
+  replicas: 2
+
+  selector:
+    matchLabels:
+      app: nginx-resource
+
+  template:
+    metadata:
+      labels:
+        app: nginx-resource
+
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.25
+
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+
+---
+
+##############################################################
+# 6. DEPLOYMENT WITH HEALTH CHECKS
+##############################################################
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deployment-health
+
+spec:
+  replicas: 2
+
+  selector:
+    matchLabels:
+      app: nginx-health
+
+  template:
+    metadata:
+      labels:
+        app: nginx-health
+
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.25
+
+        ports:
+        - containerPort: 80
+
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+
+          initialDelaySeconds: 5
+          periodSeconds: 10
+
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+
+          initialDelaySeconds: 15
+          periodSeconds: 20
+
+---
+
+##############################################################
+# 7. DEPLOYMENT USING CONFIGMAP
+##############################################################
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deployment-configmap
+
+spec:
+  replicas: 2
+
+  selector:
+    matchLabels:
+      app: nginx-config
+
+  template:
+    metadata:
+      labels:
+        app: nginx-config
+
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.25
+
+        envFrom:
+        - configMapRef:
+            name: app-config
+
+---
+
+##############################################################
+# 8. DEPLOYMENT USING SECRET
+##############################################################
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deployment-secret
+
+spec:
+  replicas: 2
+
+  selector:
+    matchLabels:
+      app: nginx-secret
+
+  template:
+    metadata:
+      labels:
+        app: nginx-secret
+
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.25
+
+        env:
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: password
+
+---
+
+##############################################################
+# 9. DEPLOYMENT WITH VOLUME
+##############################################################
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deployment-volume
+
+spec:
+  replicas: 2
+
+  selector:
+    matchLabels:
+      app: nginx-volume
+
+  template:
+    metadata:
+      labels:
+        app: nginx-volume
+
+    spec:
+
+      volumes:
+      - name: app-storage
+        emptyDir: {}
+
+      containers:
+      - name: nginx
+        image: nginx:1.25
+
+        volumeMounts:
+        - name: app-storage
+          mountPath: /usr/share/nginx/html
+
+---
+
+##############################################################
+# 10. DEPLOYMENT WITH ROLLING UPDATE
+##############################################################
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deployment-rolling
+
+spec:
+  replicas: 3
+
+  strategy:
+    type: RollingUpdate
+
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+
+  selector:
+    matchLabels:
+      app: nginx-rolling
+
+  template:
+    metadata:
+      labels:
+        app: nginx-rolling
+
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.25
+
+---
+
+##############################################################
+# 11. DEPLOYMENT WITH NODE SELECTOR
+##############################################################
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deployment-node-selector
+
+spec:
+  replicas: 2
+
+  selector:
+    matchLabels:
+      app: nginx-node
+
+  template:
+    metadata:
+      labels:
+        app: nginx-node
+
+    spec:
+
+      nodeSelector:
+        disktype: ssd
+
+      containers:
+      - name: nginx
+        image: nginx:1.25
+
+---
+
+##############################################################
+# 12. PRODUCTION DEPLOYMENT (ALL FEATURES)
+##############################################################
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: production-nginx
+
+  labels:
+    app: nginx
+    env: production
+
+  annotations:
+    owner: ajith
+    version: "2.0"
+
+spec:
+
+  replicas: 3
+
+  strategy:
+    type: RollingUpdate
+
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+
+  selector:
+    matchLabels:
+      app: nginx
+
+  template:
+
+    metadata:
+      labels:
+        app: nginx
+        env: production
+
+    spec:
+
+      nodeSelector:
+        disktype: ssd
+
+      volumes:
+      - name: web-storage
+        emptyDir: {}
+
+      containers:
+
+      - name: nginx
+
+        image: nginx:1.25
+
+        ports:
+        - containerPort: 80
+
+        env:
+        - name: ENVIRONMENT
+          value: Production
+
+        envFrom:
+        - configMapRef:
+            name: app-config
+
+        resources:
+          requests:
+            cpu: "200m"
+            memory: "256Mi"
+
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+
+          initialDelaySeconds: 5
+
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+
+          initialDelaySeconds: 15
+
+        volumeMounts:
+        - name: web-storage
+          mountPath: /usr/share/nginx/html

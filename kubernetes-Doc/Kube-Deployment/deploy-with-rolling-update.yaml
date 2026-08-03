@@ -1,0 +1,141 @@
+# API version used for Deployment resources
+apiVersion: apps/v1
+
+# Resource type
+kind: Deployment
+
+# Metadata contains information about the Deployment
+metadata:
+  # Name of the Deployment
+  name: nginx-deployment
+
+  # Labels help identify and organize Kubernetes resources
+  labels:
+    app: nginx
+
+spec:
+  # Number of Pod replicas Kubernetes should maintain
+  replicas: 4
+
+  # Deployment update strategy
+  strategy:
+
+    # RollingUpdate replaces Pods one by one without downtime
+    type: RollingUpdate
+
+    rollingUpdate:
+
+      # Maximum number of Pods that can be unavailable
+      # during the update process.
+      #
+      # replicas = 4
+      # maxUnavailable = 1
+      #
+      # At least 3 Pods will always remain available.
+      maxUnavailable: 1
+
+      # Maximum number of extra Pods Kubernetes can create
+      # during the update.
+      #
+      # replicas = 4
+      # maxSurge = 1
+      #
+      # Kubernetes may temporarily run 5 Pods.
+      maxSurge: 1
+
+  # Deployment manages only Pods with this label
+  selector:
+    matchLabels:
+      app: nginx
+
+  # Template used to create new Pods
+  template:
+
+    metadata:
+
+      # Labels assigned to every Pod created
+      labels:
+        app: nginx
+
+    spec:
+
+      containers:
+
+      # Container name
+      - name: nginx
+
+        # Docker image to run
+        image: nginx:1.25
+
+        # Expose port 80 inside the container
+        ports:
+        - containerPort: 80
+
+        ##################################################
+        # Resource Management
+        ##################################################
+
+        resources:
+
+          requests:
+
+            # Minimum memory guaranteed
+            memory: "64Mi"
+
+            # Minimum CPU guaranteed
+            cpu: "100m"
+
+          limits:
+
+            # Maximum memory container can consume
+            memory: "128Mi"
+
+            # Maximum CPU container can consume
+            cpu: "200m"
+
+        ##################################################
+        # Liveness Probe
+        ##################################################
+
+        # Checks whether the application is still alive.
+        #
+        # If this probe fails continuously,
+        # Kubernetes restarts the container.
+        livenessProbe:
+
+          httpGet:
+
+            # URL path to check
+            path: /
+
+            # Port to access
+            port: 80
+
+          # Wait 10 seconds before first health check
+          initialDelaySeconds: 10
+
+          # Check every 5 seconds
+          periodSeconds: 5
+
+        ##################################################
+        # Readiness Probe
+        ##################################################
+
+        # Checks whether the application is ready
+        # to receive user traffic.
+        #
+        # If it fails,
+        # Kubernetes DOES NOT send traffic
+        # but DOES NOT restart the container.
+        readinessProbe:
+
+          httpGet:
+
+            path: /
+            port: 80
+
+          # Wait before first readiness check
+          initialDelaySeconds: 5
+
+          # Check every 3 seconds
+          periodSeconds: 3

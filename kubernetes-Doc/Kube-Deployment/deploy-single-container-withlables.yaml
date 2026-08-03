@@ -1,0 +1,45 @@
+# Deploy the application using a single container in a Deployment with replicas as 2.
+
+# Also the pod is having only one container. And the deployment is identified by the label "app: nginx".
+
+# API Version
+apiVersion: apps/v1
+
+# Kubernetes Object
+kind: Deployment
+
+metadata:
+  # Deployment Name
+  name: nginx-deployment
+
+spec:
+
+  # Number of Pod replicas
+  replicas: 2
+
+  # Deployment identifies Pods using labels
+  selector:
+    matchLabels:
+      app: nginx
+      environment: dev
+      team: platform
+      owner: AJ
+
+  # Pod Template
+  template:
+
+    metadata:
+      labels:
+        app: nginx
+
+    spec:
+
+      containers:
+
+      - name: nginx-container
+
+        image: nginx:latest
+
+        ports:
+
+        - containerPort: 80
