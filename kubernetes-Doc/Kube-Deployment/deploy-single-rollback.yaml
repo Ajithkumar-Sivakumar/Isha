@@ -41,7 +41,7 @@ spec:
         # New image: nginx:1.28
         # kubectl set image deployment/rollback-app rollback-container=nginx:1.28 -- upgrade the image to nginx:1.28
         # Rollback to previous image: nginx:1.27 with kubectl set image deployment/rollback-app rollback-container=nginx:1.27
-        image: nginx:1.27
+        image: nginx:1.28
 
         # Container listens on port 80
         ports:
