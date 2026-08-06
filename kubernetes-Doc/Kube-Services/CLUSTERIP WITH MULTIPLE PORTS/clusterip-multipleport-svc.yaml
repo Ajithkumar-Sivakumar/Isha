@@ -1,22 +1,89 @@
+##############################################################
+# CLUSTERIP SERVICE
+##############################################################
+
+# API Version
 apiVersion: v1
+
+# Resource Type
 kind: Service
 
+##############################################################
+# Service Metadata
+##############################################################
+
 metadata:
+
+  # Service Name
+  #
+  # Clients inside the cluster use:
+  #
+  # http://nginx-service-multi
+  #
   name: nginx-service-multi
+
+##############################################################
+# Service Specification
+##############################################################
 
 spec:
 
+  ############################################################
+  # Service Type
+  ############################################################
+
+  # Internal Service
+  #
+  # Accessible only inside Kubernetes.
+  #
   type: ClusterIP
 
+  ############################################################
+  # Pod Selector
+  ############################################################
+
+  # Service forwards traffic
+  # only to Pods having:
+  #
+  # app=nginx-multi
+  #
   selector:
     app: nginx-multi
 
+  ############################################################
+  # Multiple Port Configuration
+  ############################################################
+
   ports:
 
+  ############################################################
+  # HTTP Service Port
+  ############################################################
+
+  # Port configuration name.
+  #
+  # Required when multiple ports exist.
+  #
   - name: http
+
+    # Service listens on Port 80.
     port: 80
+
+    # Traffic forwarded to
+    # Container Port 80.
     targetPort: 80
 
+  ############################################################
+  # HTTPS Service Port
+  ############################################################
+
+  # Second port configuration.
+  #
   - name: https
+
+    # Service listens on Port 443.
     port: 443
+
+    # Traffic forwarded to
+    # Container Port 443.
     targetPort: 443

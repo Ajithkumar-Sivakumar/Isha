@@ -1,26 +1,106 @@
+##############################################################
+# DEPLOYMENT
+##############################################################
+
+# Kubernetes API version for Deployment
 apiVersion: apps/v1
+
+# Resource type
 kind: Deployment
 
+##############################################################
+# Deployment Metadata
+##############################################################
+
 metadata:
+
+  # Name of the Deployment
+  #
+  # Used to identify this Deployment.
+  #
   name: nginx-multi-port
 
+##############################################################
+# Deployment Specification
+##############################################################
+
 spec:
+
+  ############################################################
+  # Number of Pods
+  ############################################################
+
+  # Kubernetes always keeps
+  # two Pods running.
+  #
   replicas: 2
 
+  ############################################################
+  # Deployment Selector
+  ############################################################
+
+  # Deployment manages Pods
+  # having this label.
+  #
   selector:
     matchLabels:
       app: nginx-multi
 
+  ############################################################
+  # Pod Template
+  ############################################################
+
+  # Template used whenever
+  # Kubernetes creates a new Pod.
+  #
   template:
+
+    ##########################################################
+    # Pod Metadata
+    ##########################################################
+
     metadata:
+
+      # Labels attached to every Pod.
+      #
+      # MUST match Deployment selector.
+      #
       labels:
         app: nginx-multi
 
+    ##########################################################
+    # Pod Specification
+    ##########################################################
+
     spec:
+
+      ########################################################
+      # Container Definition
+      ########################################################
+
       containers:
+
+      # Container name
       - name: nginx
+
+        # Docker image
         image: nginx:1.25
 
+        ######################################################
+        # Container Ports
+        ######################################################
+
         ports:
+
+        # HTTP Port
+        #
+        # Nginx listens on Port 80.
+        #
         - containerPort: 80
+
+        # HTTPS Port
+        #
+        # Nginx can also listen on Port 443
+        # for secure HTTPS traffic.
+        #
         - containerPort: 443

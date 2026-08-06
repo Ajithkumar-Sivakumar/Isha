@@ -1,20 +1,82 @@
+##############################################################
+# CLUSTERIP SERVICE
+##############################################################
+
+# API version for Service
 apiVersion: v1
+
+# Kubernetes resource type
 kind: Service
 
+##############################################################
+# Service Metadata
+##############################################################
+
 metadata:
+
+  # Service name
+  #
+  # Other Pods connect using:
+  #
+  # http://nginx-service-port:8080
+  #
   name: nginx-service-port
+
+##############################################################
+# Service Specification
+##############################################################
 
 spec:
 
+  ############################################################
+  # Service Type
+  ############################################################
+
+  # ClusterIP creates an internal virtual IP.
+  #
+  # Accessible only inside the Kubernetes cluster.
+  #
   type: ClusterIP
 
+  ############################################################
+  # Pod Selector
+  ############################################################
+
+  # Service searches for Pods
+  # having this label.
+  #
   selector:
     app: nginx-port
 
+  ############################################################
+  # Port Mapping
+  ############################################################
+
   ports:
 
-  # Clients connect using Port 8080
+  ############################################################
+  # Service Port
+  ############################################################
+
+  # Clients connect to the Service
+  # using Port 8080.
+  #
+  # Example:
+  #
+  # http://nginx-service-port:8080
+  #
   - port: 8080
 
-    # Traffic forwarded to Container Port 80
+    ##########################################################
+    # Target Port
+    ##########################################################
+
+    # Service forwards incoming traffic
+    # to Port 80 inside the container.
+    #
+    # Service Port 8080
+    #          │
+    #          ▼
+    # Target Port 80
+    #
     targetPort: 80

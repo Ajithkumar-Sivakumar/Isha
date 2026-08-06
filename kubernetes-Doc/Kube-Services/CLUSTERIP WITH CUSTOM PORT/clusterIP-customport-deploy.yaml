@@ -1,25 +1,98 @@
+##############################################################
+# DEPLOYMENT
+##############################################################
+
+# API version used for Deployment resources
 apiVersion: apps/v1
+
+# Kubernetes resource type
 kind: Deployment
 
+##############################################################
+# Deployment Metadata
+##############################################################
+
 metadata:
+
+  # Name of the Deployment
+  #
+  # Used to identify this Deployment inside Kubernetes.
+  #
   name: nginx-clusterip-port
 
+##############################################################
+# Desired State
+##############################################################
+
 spec:
+
+  ############################################################
+  # Number of Pods
+  ############################################################
+
+  # Kubernetes will always keep two Pods running.
   replicas: 2
 
+  ############################################################
+  # Deployment Selector
+  ############################################################
+
+  # Deployment manages only Pods
+  # having the label:
+  #
+  # app=nginx-port
+  #
   selector:
     matchLabels:
       app: nginx-port
 
+  ############################################################
+  # Pod Template
+  ############################################################
+
+  # This template is used whenever Kubernetes
+  # creates a new Pod.
+  #
   template:
+
+    ##########################################################
+    # Pod Metadata
+    ##########################################################
+
     metadata:
+
+      # Labels attached to every Pod.
+      #
+      # MUST match the selector above.
+      #
       labels:
         app: nginx-port
 
+    ##########################################################
+    # Pod Specification
+    ##########################################################
+
     spec:
+
+      ########################################################
+      # Container Definition
+      ########################################################
+
       containers:
+
+      # Container name
       - name: nginx
+
+        # Docker image downloaded from Docker Hub
         image: nginx:1.25
 
+        ######################################################
+        # Container Port
+        ######################################################
+
+        # Nginx application listens
+        # on Port 80 inside the container.
+        #
         ports:
+
         - containerPort: 80

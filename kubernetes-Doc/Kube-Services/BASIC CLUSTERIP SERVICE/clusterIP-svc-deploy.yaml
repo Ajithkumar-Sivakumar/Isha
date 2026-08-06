@@ -1,33 +1,89 @@
 ##############################################################
-# 1. BASIC CLUSTERIP SERVICE
+# DEPLOYMENT
 ##############################################################
 
-# This example creates:
-# 1. Deployment
-# 2. ClusterIP Service
-
+# Kubernetes API version for Deployment
 apiVersion: apps/v1
+
+# Resource type
 kind: Deployment
 
+# Metadata contains information about the Deployment
 metadata:
+
+  # Name of the Deployment
+  # This is how Kubernetes identifies this Deployment
   name: nginx-clusterip-basic
 
+# Desired state of the Deployment
 spec:
+
+  ############################################################
+  # Number of Pods
+  ############################################################
+
+  # Kubernetes always tries to keep 2 Pods running
   replicas: 2
 
+  ############################################################
+  # Selector
+  ############################################################
+
+  # Deployment needs to know which Pods belong to it.
+  # It looks for Pods having label:
+  #
+  # app=nginx-basic
+  #
   selector:
     matchLabels:
       app: nginx-basic
 
+  ############################################################
+  # Pod Template
+  ############################################################
+
+  # Template tells Kubernetes how new Pods should be created.
   template:
+
+    ##########################################################
+    # Pod Metadata
+    ##########################################################
+
     metadata:
+
+      # Labels attached to every Pod
+      #
+      # These labels MUST match the selector above.
+      #
+      # If labels don't match,
+      # Deployment cannot manage the Pods.
+      #
       labels:
         app: nginx-basic
 
+    ##########################################################
+    # Pod Specification
+    ##########################################################
+
     spec:
+
+      ########################################################
+      # Container Definition
+      ########################################################
+
       containers:
+
+      # Container name
       - name: nginx
+
+        # Docker image pulled from Docker Hub
         image: nginx:1.25
 
+        ######################################################
+        # Container Port
+        ######################################################
+
+        # Port on which nginx listens INSIDE the container
         ports:
+
         - containerPort: 80

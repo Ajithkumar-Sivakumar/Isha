@@ -1,16 +1,71 @@
+##############################################################
+# CLUSTERIP SERVICE
+##############################################################
+
+# API version for Service
 apiVersion: v1
+
+# Resource type
 kind: Service
 
+##############################################################
+# Service Metadata
+##############################################################
+
 metadata:
+
+  # Name of the Service
+  #
+  # Other Pods can communicate using:
+  #
+  # http://nginx-service-basic
+  #
   name: nginx-service-basic
+
+##############################################################
+# Service Specification
+##############################################################
 
 spec:
 
+  ############################################################
+  # Service Type
+  ############################################################
+
+  # ClusterIP is the default Service type.
+  #
+  # Creates an internal virtual IP.
+  #
+  # Accessible ONLY inside Kubernetes Cluster.
+  #
   type: ClusterIP
 
+  ############################################################
+  # Pod Selector
+  ############################################################
+
+  # Service searches for Pods having:
+  #
+  # app=nginx-basic
+  #
+  # Those Pods become backend endpoints.
+  #
   selector:
     app: nginx-basic
 
+  ############################################################
+  # Service Port Mapping
+  ############################################################
+
   ports:
+
+  # Service Port
+  #
+  # Clients connect to port 80 of the Service.
+  #
   - port: 80
+
+    # Traffic is forwarded to port 80
+    # inside the selected Pods.
+    #
     targetPort: 80
