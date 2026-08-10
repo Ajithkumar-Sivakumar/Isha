@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: address-book
+  namespace: add-book
+  labels:
+    app: address-book
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: address-book
+  template:
+    metadata:
+      labels:
+        app: address-book
+    spec:
+      containers:
+        - name: address-book
+          image: address-book:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+            - name: APP_TITLE
+              valueFrom:
+                configMapKeyRef:
+                  name: address-book-config
+                  key: app.title
+            - name: APP_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: address-book-secret
+                  key: app.secret
+          volumeMounts:
+            - name: address-book-storage
+              mountPath: /data
+      volumes:
+        - name: address-book-storage
+          persistentVolumeClaim:
+            claimName: address-book-pvc
