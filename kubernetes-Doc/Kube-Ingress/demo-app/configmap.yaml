@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: phone-app-config
+data:
+  APP_NAME: "Phone Demo App"
+  COMPANY_NAME: "Acme Mobile"
