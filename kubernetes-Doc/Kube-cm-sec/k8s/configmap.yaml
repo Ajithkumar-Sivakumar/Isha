@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap #resource type
+metadata:
+  name: address-book-config #name of the configmap
+  namespace: add-book #namespace where this resource will be created
+data:
+  app.title: "MY ADDRESS BOOK" #variable name and value
+  app.environment: "development" #variable name and value

@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: demo-phonebook
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: demo-phonebook
+  template:
+    metadata:
+      labels:
+        app: demo-phonebook
+    spec:
+      containers:
+        - name: phonebook
+          image: demo-phonebook:latest
+          ports:
+            - containerPort: 5000
+          volumeMounts:
+            - name: phonebook-storage
+              mountPath: /data
+      volumes:
+        - name: phonebook-storage
+          persistentVolumeClaim:
+            claimName: demo-phonebook-pvc

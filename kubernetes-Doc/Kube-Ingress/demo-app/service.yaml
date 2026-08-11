@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: phone-demo-service
+spec:
+  selector:
+    app: phone-demo
+  ports:
+    - port: 80
+      targetPort: 5000
+  type: ClusterIP

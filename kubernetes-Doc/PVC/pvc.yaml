@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+
+metadata:
+  name: demo-pvc
+
+spec:
+
+  # Request 1 GB storage
+  resources:
+    requests:
+      storage: 1Gi
+
+  # Must match PV
+  accessModes:
+    - ReadWriteOnce
+
+  # Must match PV
+  storageClassName: manual

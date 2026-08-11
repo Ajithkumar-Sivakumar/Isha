@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: PersistentVolume
+
+metadata:
+  name: demo-pv
+
+spec:
+
+  # Amount of storage
+  capacity:
+    storage: 1Gi
+
+  # This PV can be mounted for read/write
+  accessModes:
+    - ReadWriteOnce
+
+  # Storage class name
+  storageClassName: manual
+
+  # For Minikube/local Kubernetes
+  hostPath:
+    path: /mnt/data
