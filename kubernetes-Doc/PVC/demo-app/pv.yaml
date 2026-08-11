@@ -1,14 +1,51 @@
+# API version used for PersistentVolume
 apiVersion: v1
+
+# Kubernetes object type
+# PersistentVolume = storage provided to the cluster
 kind: PersistentVolume
+
+# Basic information about the PV
 metadata:
+
+  # Name of the PersistentVolume
+  # This name must be unique in the cluster
   name: demo-phonebook-pv
+
+# Specification of the PersistentVolume
 spec:
+
+  # Defines how much storage this PV provides
   capacity:
+
+    # This PV provides 1 Gigabyte of storage
     storage: 1Gi
+
+  # Defines how the storage can be mounted
   accessModes:
+
+    # ReadWriteOnce (RWO)
+    # The volume can be mounted as read/write
+    # by workloads on one node at a time
     - ReadWriteOnce
+
+  # Defines what happens to the PV
+  # when the PVC using it is deleted
   persistentVolumeReclaimPolicy: Retain
+
+  # StorageClass associated with this PV
+  # "manual" means we are doing static provisioning
+  # The PVC must request the same StorageClass
   storageClassName: manual
+
+  # Defines the actual storage backend
+  # hostPath uses a directory on the Kubernetes node
   hostPath:
+
+    # Directory on the Kubernetes node
+    # Data written here will be stored in this directory
     path: /tmp/demo-phonebook-pv
+
+    # If the directory does not exist,
+    # Kubernetes creates it automatically
     type: DirectoryOrCreate
