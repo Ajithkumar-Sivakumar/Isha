@@ -33,8 +33,11 @@ This demo app shows a simple phone catalog service that can be exposed through a
 - The app writes inventory data to `/data/inventory.txt`
 
 ## Build and run
-1. Build the image: `docker build -t phone-demo:latest .`
-2. Apply storage: `kubectl apply -f pv.yaml -f pvc.yaml`
-3. Apply config and secret if available
-4. Apply deployment and service: `kubectl apply -f deployment.yaml -f service.yaml`
-5. Add an Ingress rule to point to `phone-demo-service`
+1. Create a dedicated namespace for this demo: `kubectl apply -f namespace.yaml`
+2. Build the image: `docker build -t phone-demo:latest .`
+3. Apply storage: `kubectl apply -f pv.yaml -f pvc.yaml`
+4. Apply config and secret if available
+5. Apply deployment and service: `kubectl apply -f deployment.yaml -f service.yaml`
+6. Add an Ingress rule to point to `phone-demo-service`
+
+This example keeps all app resources inside the `phone-demo` namespace so you can explain how namespaces separate different applications in the same cluster.

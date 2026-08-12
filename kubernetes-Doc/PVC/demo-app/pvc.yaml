@@ -2,6 +2,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: demo-phonebook-pvc
+  namespace: demo-phonebook
 spec:
   accessModes:
     - ReadWriteOnce
