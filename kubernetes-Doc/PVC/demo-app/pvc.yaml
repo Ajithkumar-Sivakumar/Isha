@@ -1,12 +1,37 @@
+# API version used for PersistentVolumeClaim
 apiVersion: v1
+
+# Kubernetes object type
+# PVC = PersistentVolumeClaim
+# It is a request for storage
 kind: PersistentVolumeClaim
+
+# Basic information about the PVC
 metadata:
+
+  # Name of the PVC
+  # The Pod will use this name to mount the storage
   name: demo-phonebook-pvc
-  namespace: demo-phonebook
+
+# Storage requirements for this PVC
 spec:
+
+  # Defines how the application wants to access the storage
   accessModes:
+
+    # ReadWriteOnce (RWO)
+    # The volume can be mounted as read/write
+    # by workloads on one node at a time
     - ReadWriteOnce
+
+  # Defines how much storage the application is requesting
   resources:
+
+    # Application is requesting 1 GB of storage
     requests:
-      storage: 500Mi
+      storage: 1Gi
+
+  # StorageClass associated with this PVC
+  # "manual" matches the StorageClass name
+  # configured in our static PV
   storageClassName: manual

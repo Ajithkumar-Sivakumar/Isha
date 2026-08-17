@@ -105,7 +105,7 @@ In the phonebook demo app, the Flask code writes data to `/data/phonebook.json`.
 ### Deployment flow
 1. Apply `pv.yaml`: create the storage volume.
 2. Apply `pvc.yaml`: request the storage.
-3. Apply `deployment.yaml`: start the pod and mount the PVC.
+3. Apply `statefulset.yaml`: start the pod and mount the PVC.
 4. Apply `service.yaml`: expose the app.
 
 ### Accessing the demo app

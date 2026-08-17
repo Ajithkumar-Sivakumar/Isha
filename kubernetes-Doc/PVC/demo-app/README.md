@@ -44,24 +44,18 @@ curl -X DELETE http://localhost:5000/entries
 
 ```bash
 docker build -t demo-phonebook:latest .
-
-minikube image load demo-phonebook -- Load in minikubes
 ```
-
 
 ## Deploy to Kubernetes
 
-Create a namespace for the app first, then apply the manifests in order:
+Apply the manifest files in order:
 
 ```bash
-kubectl apply -f namespace.yaml
 kubectl apply -f pv.yaml
 kubectl apply -f pvc.yaml
 kubectl apply -f deployment.yaml
 kubectl apply -f service.yaml
 ```
-
-This keeps the storage and app resources inside the `demo-phonebook` namespace so students can clearly see that namespaces isolate workloads and resources.
 
 ## Connect to the app in Kubernetes
 

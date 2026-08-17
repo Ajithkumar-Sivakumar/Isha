@@ -2,7 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: phone-demo-deployment
-  namespace: phone-demo
 spec:
   replicas: 2
   selector:
@@ -16,7 +15,6 @@ spec:
       containers:
         - name: phone-demo
           image: phone-demo:latest
-          imagePullPolicy: Never
           ports:
             - containerPort: 5000
           envFrom:

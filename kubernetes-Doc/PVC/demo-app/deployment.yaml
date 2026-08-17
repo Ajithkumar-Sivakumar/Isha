@@ -2,7 +2,6 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: demo-phonebook
-  namespace: demo-phonebook
 spec:
   replicas: 1
   selector:
@@ -16,7 +15,6 @@ spec:
       containers:
         - name: phonebook
           image: demo-phonebook:latest
-          imagePullPolicy: Never
           ports:
             - containerPort: 5000
           volumeMounts:
