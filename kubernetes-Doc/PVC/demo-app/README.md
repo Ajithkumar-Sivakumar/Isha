@@ -44,7 +44,10 @@ curl -X DELETE http://localhost:5000/entries
 
 ```bash
 docker build -t demo-phonebook:latest .
+
+minikube image load demo-phonebook -- Load in minikubes
 ```
+
 
 ## Deploy to Kubernetes
 

@@ -16,6 +16,7 @@ spec:
       containers:
         - name: phone-demo
           image: phone-demo:latest
+          imagePullPolicy: Never
           ports:
             - containerPort: 5000
           envFrom:

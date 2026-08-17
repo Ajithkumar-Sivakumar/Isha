@@ -1,0 +1,418 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2026-05-25T17:00:00.000Z",
+  "__export_source": "insomnia.desktop",
+  "resources": [
+    {
+      "_id": "wrk_logistics",
+      "parentId": null,
+      "_type": "workspace",
+      "name": "Logistics Observability API",
+      "description": "Freight forwarding API for observability training"
+    },
+    {
+      "_id": "env_base",
+      "parentId": "wrk_logistics",
+      "_type": "environment",
+      "name": "Local",
+      "data": {
+        "base_url": "http://localhost:5000",
+        "api": "{{ base_url }}/api/v1"
+      }
+    },
+    {
+      "_id": "fld_customers",
+      "parentId": "wrk_logistics",
+      "_type": "request_group",
+      "name": "Customers"
+    },
+    {
+      "_id": "fld_shipments",
+      "parentId": "wrk_logistics",
+      "_type": "request_group",
+      "name": "Shipments"
+    },
+    {
+      "_id": "fld_carriers",
+      "parentId": "wrk_logistics",
+      "_type": "request_group",
+      "name": "Carriers"
+    },
+    {
+      "_id": "fld_routes",
+      "parentId": "wrk_logistics",
+      "_type": "request_group",
+      "name": "Routes & Ports"
+    },
+    {
+      "_id": "fld_customs",
+      "parentId": "wrk_logistics",
+      "_type": "request_group",
+      "name": "Customs Declarations"
+    },
+    {
+      "_id": "fld_analytics",
+      "parentId": "wrk_logistics",
+      "_type": "request_group",
+      "name": "Analytics"
+    },
+    {
+      "_id": "fld_tracking",
+      "parentId": "wrk_logistics",
+      "_type": "request_group",
+      "name": "Tracking"
+    },
+
+    {
+      "_id": "req_list_customers",
+      "parentId": "fld_customers",
+      "_type": "request",
+      "name": "List Customers",
+      "method": "GET",
+      "url": "{{ api }}/customers",
+      "parameters": [
+        { "name": "page", "value": "0", "disabled": true },
+        { "name": "size", "value": "20", "disabled": true },
+        { "name": "search", "value": "", "disabled": true }
+      ]
+    },
+    {
+      "_id": "req_get_customer",
+      "parentId": "fld_customers",
+      "_type": "request",
+      "name": "Get Customer by ID",
+      "method": "GET",
+      "url": "{{ api }}/customers/{{ customer_id }}",
+      "description": "Replace {{ customer_id }} with a UUID from the List Customers response"
+    },
+    {
+      "_id": "req_create_customer",
+      "parentId": "fld_customers",
+      "_type": "request",
+      "name": "Create Customer",
+      "method": "POST",
+      "url": "{{ api }}/customers",
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"companyName\": \"Acme Imports LLC\",\n  \"contactName\": \"Alice Johnson\",\n  \"contactEmail\": \"alice@acmeimports.example.com\",\n  \"contactPhone\": \"+1-206-555-1234\",\n  \"street\": \"500 Commerce Ave\",\n  \"city\": \"Seattle\",\n  \"state\": \"WA\",\n  \"country\": \"US\",\n  \"postalCode\": \"98101\",\n  \"creditLimit\": 250000\n}"
+      }
+    },
+    {
+      "_id": "req_suspend_customer",
+      "parentId": "fld_customers",
+      "_type": "request",
+      "name": "Suspend Customer Account",
+      "method": "PATCH",
+      "url": "{{ api }}/customers/{{ customer_id }}/status",
+      "parameters": [{ "name": "status", "value": "SUSPENDED" }],
+      "description": "Try creating a shipment for this customer after suspending — should get 403"
+    },
+    {
+      "_id": "req_customer_shipments",
+      "parentId": "fld_customers",
+      "_type": "request",
+      "name": "Get Customer Shipments",
+      "method": "GET",
+      "url": "{{ api }}/customers/{{ customer_id }}/shipments",
+      "parameters": [
+        { "name": "page", "value": "0" },
+        { "name": "size", "value": "20" }
+      ]
+    },
+
+    {
+      "_id": "req_list_shipments",
+      "parentId": "fld_shipments",
+      "_type": "request",
+      "name": "Search Shipments",
+      "method": "GET",
+      "url": "{{ api }}/shipments",
+      "parameters": [
+        { "name": "page", "value": "0" },
+        { "name": "size", "value": "20" },
+        { "name": "status", "value": "", "disabled": true },
+        { "name": "transportMode", "value": "", "disabled": true },
+        { "name": "customerId", "value": "", "disabled": true }
+      ]
+    },
+    {
+      "_id": "req_get_shipment",
+      "parentId": "fld_shipments",
+      "_type": "request",
+      "name": "Get Shipment by ID",
+      "method": "GET",
+      "url": "{{ api }}/shipments/{{ shipment_id }}",
+      "description": "Returns full shipment details including items, route, customer, and carrier info"
+    },
+    {
+      "_id": "req_create_shipment",
+      "parentId": "fld_shipments",
+      "_type": "request",
+      "name": "Create Shipment",
+      "method": "POST",
+      "url": "{{ api }}/shipments",
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"customerId\": \"PASTE_CUSTOMER_UUID_HERE\",\n  \"routeId\": \"PASTE_ROUTE_UUID_HERE\",\n  \"transportMode\": \"OCEAN\",\n  \"priority\": \"STANDARD\",\n  \"estimatedDeparture\": \"2026-06-01T08:00:00\",\n  \"estimatedArrival\": \"2026-06-15T08:00:00\",\n  \"totalWeight\": 5000,\n  \"totalVolume\": 22.5,\n  \"declaredValue\": 75000,\n  \"currency\": \"USD\",\n  \"specialInstructions\": \"Handle with care - fragile electronics\",\n  \"items\": [\n    {\n      \"description\": \"Consumer Electronics - Laptops\",\n      \"quantity\": 200,\n      \"weight\": 3000,\n      \"length\": 120,\n      \"width\": 80,\n      \"height\": 60,\n      \"hsCode\": \"8471.30.01\",\n      \"countryOfOrigin\": \"CN\",\n      \"isDangerous\": false,\n      \"temperatureControlled\": false\n    },\n    {\n      \"description\": \"Lithium Battery Packs\",\n      \"quantity\": 200,\n      \"weight\": 2000,\n      \"length\": 40,\n      \"width\": 30,\n      \"height\": 20,\n      \"hsCode\": \"8507.60.00\",\n      \"countryOfOrigin\": \"CN\",\n      \"isDangerous\": true,\n      \"temperatureControlled\": false\n    }\n  ]\n}"
+      },
+      "description": "First get a customer ID and route ID from their respective list endpoints"
+    },
+    {
+      "_id": "req_update_shipment",
+      "parentId": "fld_shipments",
+      "_type": "request",
+      "name": "Update Shipment",
+      "method": "PUT",
+      "url": "{{ api }}/shipments/{{ shipment_id }}",
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"priority\": \"EXPRESS\",\n  \"specialInstructions\": \"Updated: Rush delivery requested by customer\"\n}"
+      },
+      "description": "Only works for shipments in DRAFT or BOOKED status"
+    },
+    {
+      "_id": "req_cancel_shipment",
+      "parentId": "fld_shipments",
+      "_type": "request",
+      "name": "Cancel Shipment",
+      "method": "DELETE",
+      "url": "{{ api }}/shipments/{{ shipment_id }}",
+      "description": "Only works for DRAFT or BOOKED shipments. Returns 204 No Content on success."
+    },
+    {
+      "_id": "req_assign_carrier",
+      "parentId": "fld_shipments",
+      "_type": "request",
+      "name": "Assign Carrier to Shipment",
+      "method": "POST",
+      "url": "{{ api }}/shipments/{{ shipment_id }}/assign-carrier",
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"carrierId\": \"PASTE_CARRIER_UUID_HERE\"\n}"
+      },
+      "description": "Shipment must be in BOOKED status. Carrier must support the transport mode and have capacity."
+    },
+
+    {
+      "_id": "req_record_tracking",
+      "parentId": "fld_tracking",
+      "_type": "request",
+      "name": "Record Tracking Event (BOOKED)",
+      "method": "POST",
+      "url": "{{ api }}/shipments/{{ shipment_id }}/tracking-events",
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"status\": \"BOOKED\",\n  \"location\": \"Seattle Office\",\n  \"notes\": \"Shipment confirmed and booked\",\n  \"reportedBy\": \"booking-agent-01\",\n  \"occurredAt\": \"2026-06-01T09:00:00\"\n}"
+      },
+      "description": "Valid transitions: DRAFT→BOOKED, BOOKED→PICKED_UP, PICKED_UP→IN_TRANSIT, etc."
+    },
+    {
+      "_id": "req_record_tracking_pickup",
+      "parentId": "fld_tracking",
+      "_type": "request",
+      "name": "Record Tracking Event (PICKED_UP)",
+      "method": "POST",
+      "url": "{{ api }}/shipments/{{ shipment_id }}/tracking-events",
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"status\": \"PICKED_UP\",\n  \"location\": \"Customer Warehouse, 400 Industry Way, Seattle\",\n  \"notes\": \"Cargo loaded onto truck\",\n  \"reportedBy\": \"driver-42\",\n  \"occurredAt\": \"2026-06-02T14:30:00\"\n}"
+      }
+    },
+    {
+      "_id": "req_record_tracking_transit",
+      "parentId": "fld_tracking",
+      "_type": "request",
+      "name": "Record Tracking Event (IN_TRANSIT)",
+      "method": "POST",
+      "url": "{{ api }}/shipments/{{ shipment_id }}/tracking-events",
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"status\": \"IN_TRANSIT\",\n  \"location\": \"Port of Seattle, Terminal 5\",\n  \"notes\": \"Loaded onto vessel MSC Aurora\",\n  \"reportedBy\": \"terminal-ops\",\n  \"occurredAt\": \"2026-06-03T06:00:00\"\n}"
+      }
+    },
+    {
+      "_id": "req_record_tracking_delivered",
+      "parentId": "fld_tracking",
+      "_type": "request",
+      "name": "Record Tracking Event (DELIVERED)",
+      "method": "POST",
+      "url": "{{ api }}/shipments/{{ shipment_id }}/tracking-events",
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"status\": \"DELIVERED\",\n  \"location\": \"Shanghai Distribution Center\",\n  \"notes\": \"Signed by warehouse manager\",\n  \"reportedBy\": \"delivery-agent-88\",\n  \"occurredAt\": \"2026-06-15T10:00:00\"\n}"
+      },
+      "description": "Must follow full state machine: DRAFT→BOOKED→PICKED_UP→IN_TRANSIT→ARRIVED_AT_PORT→OUT_FOR_DELIVERY→DELIVERED"
+    },
+    {
+      "_id": "req_get_tracking",
+      "parentId": "fld_tracking",
+      "_type": "request",
+      "name": "Get Tracking History",
+      "method": "GET",
+      "url": "{{ api }}/shipments/{{ shipment_id }}/tracking",
+      "description": "Returns all tracking events for a shipment in reverse chronological order"
+    },
+
+    {
+      "_id": "req_list_carriers",
+      "parentId": "fld_carriers",
+      "_type": "request",
+      "name": "List Carriers",
+      "method": "GET",
+      "url": "{{ api }}/carriers",
+      "parameters": [
+        { "name": "mode", "value": "", "disabled": true },
+        { "name": "activeOnly", "value": "true" }
+      ]
+    },
+    {
+      "_id": "req_get_carrier",
+      "parentId": "fld_carriers",
+      "_type": "request",
+      "name": "Get Carrier Details",
+      "method": "GET",
+      "url": "{{ api }}/carriers/{{ carrier_id }}"
+    },
+    {
+      "_id": "req_available_carriers",
+      "parentId": "fld_carriers",
+      "_type": "request",
+      "name": "Find Available Carriers",
+      "method": "GET",
+      "url": "{{ api }}/carriers/available",
+      "parameters": [
+        { "name": "mode", "value": "OCEAN" },
+        { "name": "requiredCapacity", "value": "5000" }
+      ],
+      "description": "Find carriers that support a given mode and have enough capacity"
+    },
+    {
+      "_id": "req_carrier_shipments",
+      "parentId": "fld_carriers",
+      "_type": "request",
+      "name": "Get Carrier Shipments",
+      "method": "GET",
+      "url": "{{ api }}/carriers/{{ carrier_id }}/shipments"
+    },
+
+    {
+      "_id": "req_list_routes",
+      "parentId": "fld_routes",
+      "_type": "request",
+      "name": "List Routes",
+      "method": "GET",
+      "url": "{{ api }}/routes",
+      "parameters": [
+        { "name": "origin", "value": "", "disabled": true },
+        { "name": "destination", "value": "", "disabled": true },
+        { "name": "mode", "value": "", "disabled": true }
+      ]
+    },
+    {
+      "_id": "req_get_route",
+      "parentId": "fld_routes",
+      "_type": "request",
+      "name": "Get Route by ID",
+      "method": "GET",
+      "url": "{{ api }}/routes/{{ route_id }}"
+    },
+    {
+      "_id": "req_list_ports",
+      "parentId": "fld_routes",
+      "_type": "request",
+      "name": "List Ports",
+      "method": "GET",
+      "url": "{{ api }}/ports",
+      "parameters": [
+        { "name": "type", "value": "", "disabled": true },
+        { "name": "country", "value": "", "disabled": true }
+      ]
+    },
+
+    {
+      "_id": "req_create_customs",
+      "parentId": "fld_customs",
+      "_type": "request",
+      "name": "Create Customs Declaration",
+      "method": "POST",
+      "url": "{{ api }}/shipments/{{ shipment_id }}/customs-declaration",
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"declarationType\": \"IMPORT\",\n  \"totalDeclaredValue\": 75000,\n  \"currency\": \"USD\"\n}"
+      }
+    },
+    {
+      "_id": "req_get_customs",
+      "parentId": "fld_customs",
+      "_type": "request",
+      "name": "Get Customs Declaration for Shipment",
+      "method": "GET",
+      "url": "{{ api }}/shipments/{{ shipment_id }}/customs-declaration"
+    },
+    {
+      "_id": "req_submit_customs",
+      "parentId": "fld_customs",
+      "_type": "request",
+      "name": "Submit Customs Declaration",
+      "method": "POST",
+      "url": "{{ api }}/customs-declarations/{{ declaration_id }}/submit",
+      "description": "Simulates calling an external compliance API. May take 200ms-10s depending on simulated load."
+    },
+    {
+      "_id": "req_approve_customs",
+      "parentId": "fld_customs",
+      "_type": "request",
+      "name": "Approve Customs Declaration",
+      "method": "POST",
+      "url": "{{ api }}/customs-declarations/{{ declaration_id }}/approve",
+      "description": "If shipment is in CUSTOMS_HOLD, this will advance it to CUSTOMS_CLEARED"
+    },
+    {
+      "_id": "req_reject_customs",
+      "parentId": "fld_customs",
+      "_type": "request",
+      "name": "Reject Customs Declaration",
+      "method": "POST",
+      "url": "{{ api }}/customs-declarations/{{ declaration_id }}/reject",
+      "parameters": [{ "name": "reason", "value": "Incorrect HS code classification for item 2" }]
+    },
+
+    {
+      "_id": "req_analytics_summary",
+      "parentId": "fld_analytics",
+      "_type": "request",
+      "name": "Shipment Analytics Summary",
+      "method": "GET",
+      "url": "{{ api }}/analytics/shipments/summary",
+      "description": "Returns counts by status, by mode, average transit time, carrier utilization, etc."
+    },
+
+    {
+      "_id": "req_health",
+      "parentId": "wrk_logistics",
+      "_type": "request",
+      "name": "Health Check",
+      "method": "GET",
+      "url": "{{ base_url }}/health"
+    },
+    {
+      "_id": "req_prometheus",
+      "parentId": "wrk_logistics",
+      "_type": "request",
+      "name": "Prometheus Metrics",
+      "method": "GET",
+      "url": "{{ base_url }}/metrics",
+      "description": "Raw metrics in Prometheus exposition format — this is what Prometheus scrapes"
+    }
+  ]
+}

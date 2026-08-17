@@ -16,6 +16,7 @@ spec:
       containers:
         - name: phonebook
           image: demo-phonebook:latest
+          imagePullPolicy: Never
           ports:
             - containerPort: 5000
           volumeMounts:
