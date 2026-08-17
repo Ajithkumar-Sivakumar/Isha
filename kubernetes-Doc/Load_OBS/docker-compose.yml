@@ -1,0 +1,173 @@
+name: observability
+
+services:
+  app:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=docker
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/shipments
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://tempo:4318/v1/traces
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - observability
+    labels:
+      - "logging=promtail"
+
+  postgres:
+    image: postgres:16-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: shipments
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - observability
+
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=7d'
+    networks:
+      - observability
+
+  tempo:
+    image: grafana/tempo:latest
+    ports:
+      - "3200:3200"
+      - "4318:4318"
+    volumes:
+      - ./config/tempo-config.yml:/etc/tempo/config.yml
+      - tempo_data:/var/tempo
+    command: ["-config.file=/etc/tempo/config.yml"]
+    networks:
+      - observability
+
+  loki:
+    image: grafana/loki:latest
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./config/loki-config.yml:/etc/loki/config.yml
+      - loki_data:/loki
+    command: ["-config.file=/etc/loki/config.yml"]
+    networks:
+      - observability
+
+  promtail:
+    image: grafana/promtail:latest
+    volumes:
+      - ./config/promtail-config.yml:/etc/promtail/config.yml
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    command: ["-config.file=/etc/promtail/config.yml"]
+    depends_on:
+      - loki
+    networks:
+      - observability
+
+  influxdb:
+    image: influxdb:1.8
+    ports:
+      - "8086:8086"
+    environment:
+      INFLUXDB_DB: jmeter
+      INFLUXDB_HTTP_AUTH_ENABLED: "false"
+      INFLUXDB_REPORTING_DISABLED: "true"
+    volumes:
+      - influxdb_data:/var/lib/influxdb
+    healthcheck:
+      test: ["CMD", "influx", "-execute", "SHOW DATABASES"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - observability
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - ./config/grafana/provisioning:/etc/grafana/provisioning
+      - ./config/grafana/dashboards:/var/lib/grafana/dashboards
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - prometheus
+      - tempo
+      - loki
+      - influxdb
+    networks:
+      - observability
+
+  # Load generator. Not started by `docker compose up` - run it on demand:
+  #   docker compose --profile load run --rm jmeter
+  jmeter:
+    image: justb4/jmeter:5.5
+    profiles: ["load"]
+    depends_on:
+      influxdb:
+        condition: service_healthy
+    environment:
+      JVM_ARGS: "-Xms512m -Xmx1g"
+      JMETER_PLAN: "${JMETER_PLAN:-logistics-baseline.jmx}"
+      THREADS: "${THREADS:-10}"
+      RAMPUP: "${RAMPUP:-30}"
+      TEST_DURATION: "${TEST_DURATION:-300}"
+    volumes:
+      - ./jmeter/test-plans:/tests:ro
+      - ./jmeter/results:/results
+    working_dir: /results
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - >
+        TS=$$(date +%Y%m%d-%H%M%S);
+        echo "Running $$JMETER_PLAN (threads=$$THREADS rampup=$$RAMPUP duration=$$TEST_DURATION)";
+        jmeter -n
+        -t /tests/$$JMETER_PLAN
+        -l /results/$$TS.jtl
+        -j /results/$$TS.log
+        -e -o /results/html-$$TS
+        -Japi.host=app
+        -Japi.port=5000
+        -Jinfluxdb.host=influxdb
+        -Jinfluxdb.port=8086
+        -Jinfluxdb.db=jmeter
+        -Jthreads=$$THREADS
+        -Jrampup=$$RAMPUP
+        -Jtest.duration=$$TEST_DURATION
+    networks:
+      - observability
+
+volumes:
+  postgres_data:
+  prometheus_data:
+  tempo_data:
+  loki_data:
+  grafana_data:
+  influxdb_data:
+
+networks:
+  observability:
+    driver: bridge

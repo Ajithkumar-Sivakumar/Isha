@@ -1,0 +1,66 @@
+from flask import Blueprint, request, jsonify
+
+from app.services import customs_service
+from app.schemas.customs_declaration import (
+    CreateCustomsDeclarationRequestSchema,
+    CustomsDeclarationResponseSchema,
+)
+from app.models import CustomsDeclaration
+from app.extensions import db
+
+customs_bp = Blueprint("customs", __name__)
+
+_create_schema = CreateCustomsDeclarationRequestSchema()
+_response_schema = CustomsDeclarationResponseSchema()
+
+
+@customs_bp.route("/customs", methods=["GET"])
+def list_customs():
+    """List all customs declarations"""
+    page = int(request.args.get("page", 0))
+    size = int(request.args.get("size", 20))
+    
+    query = CustomsDeclaration.query
+    total = query.count()
+    declarations = query.offset(page * size).limit(size).all()
+    
+    return jsonify({
+        "content": _response_schema.dump(declarations, many=True),
+        "page": page,
+        "size": size,
+        "totalElements": total,
+        "totalPages": (total + size - 1) // size,
+        "last": (page + 1) >= ((total + size - 1) // size)
+    })
+
+
+@customs_bp.route("/shipments/<shipment_id>/customs-declaration", methods=["POST"])
+def create_declaration(shipment_id):
+    data = _create_schema.load(request.get_json())
+    declaration = customs_service.create_declaration(shipment_id, data)
+    return jsonify(_response_schema.dump(declaration)), 201
+
+
+@customs_bp.route("/shipments/<shipment_id>/customs-declaration", methods=["GET"])
+def get_declaration(shipment_id):
+    declaration = customs_service.get_declaration(shipment_id)
+    return jsonify(_response_schema.dump(declaration))
+
+
+@customs_bp.route("/customs-declarations/<declaration_id>/submit", methods=["POST"])
+def submit_declaration(declaration_id):
+    declaration = customs_service.submit_declaration(declaration_id)
+    return jsonify(_response_schema.dump(declaration))
+
+
+@customs_bp.route("/customs-declarations/<declaration_id>/approve", methods=["POST"])
+def approve_declaration(declaration_id):
+    declaration = customs_service.approve_declaration(declaration_id)
+    return jsonify(_response_schema.dump(declaration))
+
+
+@customs_bp.route("/customs-declarations/<declaration_id>/reject", methods=["POST"])
+def reject_declaration(declaration_id):
+    reason = request.args.get("reason", "")
+    declaration = customs_service.reject_declaration(declaration_id, reason)
+    return jsonify(_response_schema.dump(declaration))

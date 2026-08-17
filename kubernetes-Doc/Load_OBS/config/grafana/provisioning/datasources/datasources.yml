@@ -1,0 +1,55 @@
+apiVersion: 1
+
+datasources:
+  - name: Prometheus
+    type: prometheus
+    uid: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+    editable: true
+    version: 1
+    jsonData:
+      timeInterval: 15s
+
+  # JMeter load-test results (written by the Backend Listener in the .jmx plans)
+  - name: InfluxDB-JMeter
+    type: influxdb
+    uid: influxdb-jmeter
+    access: proxy
+    url: http://influxdb:8086
+    database: jmeter
+    isDefault: false
+    editable: true
+    version: 1
+    jsonData:
+      httpMode: GET
+      dbName: jmeter
+
+  - name: Tempo
+    type: tempo
+    uid: tempo
+    access: proxy
+    url: http://tempo:3200
+    editable: true
+    version: 1
+    jsonData:
+      tracesToLogs:
+        datasourceUid: loki
+        filterByTraceID: true
+      tracesToMetrics:
+        datasourceUid: prometheus
+
+  - name: Loki
+    type: loki
+    uid: loki
+    access: proxy
+    url: http://loki:3100
+    editable: true
+    version: 1
+    jsonData:
+      derivedFields:
+        - name: traceId
+          datasourceUid: tempo
+          matcherRegex: '"traceId":"(\w+)"'
+          url: "$${__value.raw}"
